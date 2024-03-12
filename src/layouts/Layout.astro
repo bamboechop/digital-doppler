@@ -1,0 +1,84 @@
+---
+import { AstroFont } from 'astro-font';
+
+interface Props {
+	class?: string;
+	title: string;
+}
+
+const { class: className, title, ...rest } = Astro.props;
+
+const backgrounds = ['bg/1.png', 'bg/2.png', 'bg/3.png', 'bg/4.png', 'bg/5.png', 'bg/6.png', 'bg/7.png'];
+const backgroundImageUrl = `url('${backgrounds[Math.floor(Math.random() * backgrounds.length)]}')`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<AstroFont config={[
+			{
+				name: 'Caveat',
+				src: [
+					{ style: 'regular', weight: '400', path: './public/fonts/Caveat/Caveat-Regular.ttf' },
+					{ style: 'regular', weight: '600', path: './public/fonts/Caveat/Caveat-SemiBold.ttf' },
+				],
+				preload: true,
+				display: 'swap',
+				fallback: 'sans-serif',
+			},
+			{
+				name: 'ComicNeue',
+				src: [
+					{ style: 'regular', weight: '400', path: './public/fonts/Comic_Neue/ComicNeue-Regular.ttf' },
+					{ style: 'italic', weight: '400', path: './public/fonts/Comic_Neue/ComicNeue-Italic.ttf' },
+					{ style: 'regular', weight: '700', path: './public/fonts/Comic_Neue/ComicNeue-SemiBold.ttf' },
+					{ style: 'italic', weight: '700', path: './public/fonts/Comic_Neue/ComicNeue-SemiBoldItalic.ttf' },
+				],
+				preload: true,
+				display: 'swap',
+				fallback: 'sans-serif',
+			},
+			{
+				name: 'DancingScript',
+				src: [
+					{ style: 'regular', weight: '400', path: './public/fonts/Dancing_Script/DancingScript-Regular.ttf' },
+					{ style: 'regular', weight: '600', path: './public/fonts/Dancing_Script/DancingScript-SemiBold.ttf' },
+				],
+				preload: true,
+				display: 'swap',
+				fallback: 'sans-serif',
+			},
+			{
+				name: 'Mali',
+				src: [
+					{ style: 'regular', weight: '400', path: './public/fonts/Mali/Mali-Regular.ttf' },
+					{ style: 'italic', weight: '400', path: './public/fonts/Mali/Mali-Italic.ttf' },
+					{ style: 'regular', weight: '600', path: './public/fonts/Mali/Mali-SemiBold.ttf' },
+					{ style: 'italic', weight: '600', path: './public/fonts/Mali/Mali-SemiBoldItalic.ttf' },
+				],
+				preload: true,
+				display: 'swap',
+				fallback: 'sans-serif',
+			},
+		]} />
+	</head>
+	<body class="bg-yellow-950 bg-background-pattern flex items-center justify-center min-h-dvh">
+		<main
+			class="text-white text-lg w-full"
+			class:list={[className]} {...rest}>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style define:vars={{ backgroundImageUrl }} is:global lang="scss">
+	:root {
+		--background-image-url: var(--backgroundImageUrl);
+	}
+</style>

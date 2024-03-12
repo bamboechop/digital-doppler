@@ -1,0 +1,41 @@
+---
+interface Props {
+  amount: number;
+  annotate: { color?: string; show: boolean; type: 'bracket' | 'highlight' | 'underline' };
+  cssClass: string;
+  title: string;
+}
+
+const { amount, annotate, cssClass, title }= Astro.props;
+---
+
+<div class:list={[cssClass]}>
+  <div
+    class="flex gap-2 items-center"
+    class:list={[{ 'annotate': annotate?.show }]}
+    data-annotation-color={annotate?.color}
+    data-annotation-type={annotate?.type}>
+    <slot name="icon"></slot>
+    <h3 class="flex gap-2 justify-between leading-snug text-base w-full">
+      { title }
+      <span>{ amount }</span>
+    </h3>
+  </div>
+</div>
+
+<script>
+  import { annotate } from 'rough-notation';
+
+  const elementsToAnnotate = document.querySelectorAll<HTMLDivElement>('div.annotate');
+  if(elementsToAnnotate.length > 0) {
+    elementsToAnnotate.forEach((elementToAnnotate) => {
+      const annotation = annotate(elementToAnnotate, {
+        animationDuration: 400,
+        brackets: elementToAnnotate.dataset.annotationType === 'bracket' ? ['left', 'right'] : undefined,
+        color: elementToAnnotate.dataset.annotationColor,
+        type: elementToAnnotate.dataset.annotationType as 'bracket' | 'highlight' | 'underline',
+      });
+      annotation.show();
+    });
+  }
+</script>

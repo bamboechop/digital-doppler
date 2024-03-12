@@ -1,0 +1,48 @@
+---
+import UserInfo from '../components/UserInfo.astro';
+import Layout from '../layouts/Layout.astro';
+import Notes from '../components/Notes.astro';
+
+export const prerender = false;
+
+const clientId = import.meta.env.PUBLIC_TWITCH_CLIENT_ID;
+
+if(!Astro.cookies.has('twitch-token')) {
+  return Astro.redirect('/');
+}
+
+let displayName = null;
+let image = null;
+
+const token = Astro.cookies.get('twitch-token');
+
+try {
+  const response = await fetch('https://api.twitch.tv/helix/users', {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+      'Client-Id': clientId,
+    }
+  });
+  if(response.status < 200 || response.status >= 300) {
+    throw (await response.json());
+  }
+  const { data } = (await response.json());
+  const { id } = data[0];
+  displayName = data[0].display_name;
+  image = data[0].profile_image_url;
+} catch (err) {
+  // TODO error handling
+  // { error: 'Unauthorized', status: 401, message: 'Invalid OAuth token' }
+  console.error(err);
+}
+---
+
+<Layout title="Dashboard">
+  <h1 class="sr-only">Dashboard</h1>
+  <section class="gap-8 grid grid-cols-[240px_1fr] h-dvh w-full">
+    <UserInfo imageUrl={image} name={displayName} />
+    <section class="flex flex-col gap-8 p-4">
+      <Notes />
+    </section>
+  </section>
+</Layout>

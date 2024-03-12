@@ -1,0 +1,99 @@
+---
+import { CheckSquare, XOctagon } from 'lucide-astro';
+
+interface Props {
+  text?: string;
+  type: 'cancelled' | 'completed' | 'existing' | 'new';
+}
+const { text, type } = Astro.props;
+
+const minLength = 20;
+---
+
+<article class="bg-yellow-300 flex flex-col text-black max-w-96 w-full">
+  <header class="bg-yellow-400 flex items-center px-2 h-14">
+    {type === 'new' && "Neues Todo für den 10.03.2024 erstellen"}
+  </header>
+  <label class="block px-2">
+    <textarea
+      autocomplete="off"
+      autofocus={type === 'new'}
+      class="bg-transparent resize-none w-full outline-0 single-note-textarea"
+      disabled={type === 'existing'}
+      minlength={minLength}
+      placeholder="Küche putzen, Einkaufen, ..."
+      required
+      rows="6">{text}</textarea>
+  </label>
+  <footer class="flex items-center justify-between mt-auto px-2 pb-2">
+    {type === 'existing' &&
+      <button class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white">
+        <XOctagon size="20" />
+        Abbrechen
+      </button>
+      <button class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold">
+        <CheckSquare size="20" />
+        Erledigt
+      </button>
+    }
+    {type === 'new' &&
+      <span class="text-xs textarea-counter-info">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
+      <button
+        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold"
+        disabled>
+        Speichern
+      </button>
+    }
+  </footer>
+</article>
+
+<script define:vars={{ minLength, type }}>
+  if(type === 'new') {
+    const footer = document.querySelector('footer');
+    const saveButton = document.querySelector('footer button');
+    const textarea = document.querySelector('textarea');
+    const textAreaCounterInfo = document.querySelector('.textarea-counter-info');
+    const counter = document.querySelector('.textarea-counter');
+
+    textarea.addEventListener('input', () => {
+      const remainingAmount = minLength - textarea.value.length;
+      if(remainingAmount > 0) {
+        counter.textContent = remainingAmount.toString(10);
+        textAreaCounterInfo.classList.remove('hidden');
+        footer.classList.remove('justify-end');
+        footer.classList.add('justify-between');
+      } else {
+        textAreaCounterInfo.classList.add('hidden');
+        footer.classList.add('justify-end');
+        footer.classList.remove('justify-between');
+      }
+
+      if(textarea.value.length < minLength) {
+        saveButton.disabled = true;
+        saveButton.classList.add('cursor-not-allowed');
+      } else {
+        saveButton.disabled = false;
+        saveButton.classList.remove('cursor-not-allowed');
+      }
+    });
+  }
+</script>
+
+<style lang="scss">
+  $background: theme('colors.yellow.300');
+
+  .single-note-textarea {
+    background-attachment: local;
+    background-image:
+      linear-gradient(to right, $background 10px, transparent 10px),
+      linear-gradient(to left, $background 10px, transparent 10px),
+      repeating-linear-gradient($background, $background 30px, #707070 30px, #707070 31px, $background 31px);
+    font-family: 'DancingScript';
+    line-height: 31px;
+    padding: 8px 10px;
+
+    &::placeholder {
+      color: #707070;
+    }
+  }
+</style>

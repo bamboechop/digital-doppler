@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import { LogOut } from 'lucide-astro';
+import Stats from './Stats.astro';
+
+interface Props {
+  imageUrl: string;
+  name: string;
+}
+
+const { imageUrl, name } = Astro.props;
+---
+
+<aside class="bg-amber-800 rounded-br-2xl flex flex-col gap-3 p-4 shadow-lg bg-background-pattern w-60 h-min font-sans">
+  <h2 class="sr-only">Userinfo</h2>
+  <section class="flex gap-3 items-center">
+    <Image
+      alt={name}
+      class="rounded-full h-12 w-12"
+      height="48"
+      loading="eager"
+      src={imageUrl}
+      width="48" />
+    <div class="flex flex-col gap-1 items-start">
+      <h3 class="leading-snug font-semibold text-lg">{name}</h3>
+      <button class="flex gap-1 items-center logout-button text-sm underline">
+        <LogOut class="shrink-0" size="16" />
+        Abmelden
+      </button>
+    </div>
+  </section>
+  <hr class="border-amber-700" />
+  <Stats />
+</aside>
+
+<script>
+  document.querySelector('.logout-button').addEventListener('click', () => {
+    document.cookie = 'twitch-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    window.location.href = '/';
+  });
+</script>
