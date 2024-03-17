@@ -5,15 +5,19 @@
   "scripts": {
     "astro": "astro",
     "build": "astro check && astro build",
+    "build:remote-db": "astro check && astro build --remote",
+    "db:push": "npm run astro db push",
     "dev": "astro dev",
+    "dev:remote-db": "astro dev --remote",
     "preview": "astro preview",
     "start": "astro dev"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.6",
+    "@astrojs/db": "^0.8.1",
     "@astrojs/node": "^8.2.3",
     "@astrojs/tailwind": "^5.1.0",
-    "astro": "^4.4.8",
+    "astro": "^4.5.2",
     "astro-font": "^0.0.77",
     "lucide-astro": "^0.350.0",
     "rough-notation": "^0.5.1",

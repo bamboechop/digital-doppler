@@ -2,11 +2,22 @@
 import { CheckSquare, LayoutList, ListTodo, XOctagon } from 'lucide-astro';
 import SingleStat from './SingleStat.astro';
 
+interface Props {
+  notesAmount: {
+    cancelled: number;
+    completed: number;
+    inProgress: number;
+    total: number;
+  };
+}
+
+const { notesAmount } = Astro.props;
+
 const stats: { annotate?: { color?: string; show: boolean; type: 'box' | 'crossed-off' | 'highlight' | 'underline' }; cssClass?: string; icon: any; label: string; value: number }[] = [
-  { annotate: { color: 'black', show: true, type: 'highlight' }, icon: LayoutList, label: 'Todos insgesamt:', value: 20 },
-  { annotate: { color: 'limegreen', show: true, type: 'underline' }, cssClass: 'mt-[-14px] text-green-300', icon: CheckSquare, label: 'Todos erledigt:', value: 5 },
-  { annotate: { color: 'lightskyblue', show: false, type: 'box' }, icon: ListTodo, label: 'Todos in Arbeit:', value: 15 },
-  { annotate: { show: true, type: 'crossed-off' }, cssClass: 'text-gray-300', icon: XOctagon, label: 'Todos abgebrochen:', value: 5 },
+  { annotate: { color: '#fc3597', show: true, type: 'highlight' }, icon: LayoutList, label: 'Todos insgesamt:', value: notesAmount.total },
+  { annotate: { color: 'limegreen', show: true, type: 'underline' }, cssClass: 'mt-[-14px] text-green-300', icon: CheckSquare, label: 'Todos erledigt:', value: notesAmount.completed },
+  { annotate: { color: 'lightskyblue', show: false, type: 'box' }, icon: ListTodo, label: 'Todos in Arbeit:', value: notesAmount.inProgress },
+  { annotate: { show: true, type: 'crossed-off' }, cssClass: 'text-gray-300', icon: XOctagon, label: 'Todos abgebrochen:', value: notesAmount.cancelled },
 ];
 ---
 
