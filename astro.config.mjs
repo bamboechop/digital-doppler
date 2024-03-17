@@ -6,7 +6,7 @@ import tailwind from '@astrojs/tailwind';
 // https://astro.build/config
 export default defineConfig({
   integrations: [db(), tailwind()],
-  output: 'hybrid',
+  output: 'server',
   adapter: node({
     mode: 'standalone'
   })

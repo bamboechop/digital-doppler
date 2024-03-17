@@ -5,7 +5,10 @@
   "scripts": {
     "astro": "astro",
     "build": "astro check && astro build",
+    "build:remote-db": "astro check && astro build --remote",
+    "db:push": "npm run astro db push",
     "dev": "astro dev",
+    "dev:remote-db": "astro dev --remote",
     "preview": "astro preview",
     "start": "astro dev"
   },

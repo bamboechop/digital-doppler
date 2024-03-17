@@ -2,10 +2,12 @@
 import { CheckSquare, XOctagon } from 'lucide-astro';
 
 interface Props {
+  id: number;
   text?: string;
   type: 'cancelled' | 'completed' | 'existing' | 'new';
+  userId: string;
 }
-const { text, type } = Astro.props;
+const { id, text, type, userId } = Astro.props;
 
 const minLength = 20;
 ---
@@ -26,12 +28,12 @@ const minLength = 20;
       rows="6">{text}</textarea>
   </label>
   <footer class="flex items-center justify-between mt-auto px-2 pb-2">
-    {type === 'existing' &&
-      <button class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white">
+    {type === 'in-progress' &&
+      <button class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button">
         <XOctagon size="20" />
         Abbrechen
       </button>
-      <button class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold">
+      <button class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button">
         <CheckSquare size="20" />
         Erledigt
       </button>
@@ -39,7 +41,7 @@ const minLength = 20;
     {type === 'new' &&
       <span class="text-xs textarea-counter-info">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
       <button
-        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold"
+        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
         disabled>
         Speichern
       </button>
@@ -47,10 +49,10 @@ const minLength = 20;
   </footer>
 </article>
 
-<script define:vars={{ minLength, type }}>
+<script define:vars={{ noteId: id, minLength, type, userId }}>
   if(type === 'new') {
     const footer = document.querySelector('footer');
-    const saveButton = document.querySelector('footer button');
+    const saveButton = document.querySelector('.save-button');
     const textarea = document.querySelector('textarea');
     const textAreaCounterInfo = document.querySelector('.textarea-counter-info');
     const counter = document.querySelector('.textarea-counter');
@@ -74,6 +76,65 @@ const minLength = 20;
       } else {
         saveButton.disabled = false;
         saveButton.classList.remove('cursor-not-allowed');
+      }
+    });
+
+    saveButton.addEventListener('click', async () => {
+      try {
+        await fetch('/api/create-note', {
+          body: JSON.stringify({
+            text: textarea.value,
+            userId,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+        });
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+
+  if(type === 'in-progress') {
+    const cancelButton = document.querySelector('.cancel-button');
+    const resolveButton = document.querySelector('.resolve-button');
+
+    cancelButton.addEventListener('click', async () => {
+      try {
+        await fetch('/api/update-note', {
+          body: JSON.stringify({
+            noteId,
+            status: 'cancelled',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+        });
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    resolveButton.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/update-note', {
+          body: JSON.stringify({
+            noteId,
+            status: 'completed',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+        });
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
       }
     });
   }

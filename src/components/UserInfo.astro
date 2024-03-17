@@ -4,14 +4,20 @@ import { LogOut } from 'lucide-astro';
 import Stats from './Stats.astro';
 
 interface Props {
+  notesAmount: {
+    cancelled: number;
+    completed: number;
+    inProgress: number;
+    total: number;
+  };
   imageUrl: string;
   name: string;
 }
 
-const { imageUrl, name } = Astro.props;
+const { imageUrl, name, notesAmount } = Astro.props;
 ---
 
-<aside class="bg-amber-800 rounded-br-2xl flex flex-col gap-3 p-4 shadow-lg bg-background-pattern w-60 h-min font-sans">
+<aside class="bg-amber-800 rounded-br-2xl after:pointer-events-none after:rounded-br-2xl after:content-[' '] after:-top-1.5 after:-left-1.5 after:w-full after:h-full after:absolute after:border-r-2 after:border-b-2 after:border-dashed after:border-indigo-800 flex flex-col gap-3 p-4 pr-5 pb-5 shadow-lg bg-background-pattern w-60 h-min font-sans relative">
   <h2 class="sr-only">Userinfo</h2>
   <section class="flex gap-3 items-center">
     <Image
@@ -30,7 +36,7 @@ const { imageUrl, name } = Astro.props;
     </div>
   </section>
   <hr class="border-amber-700" />
-  <Stats />
+  <Stats notesAmount={notesAmount} />
 </aside>
 
 <script>

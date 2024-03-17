@@ -1,4 +1,5 @@
 ---
+import { db, eq, notes, users } from 'astro:db';
 import UserInfo from '../components/UserInfo.astro';
 import Layout from '../layouts/Layout.astro';
 import Notes from '../components/Notes.astro';
@@ -11,8 +12,13 @@ if(!Astro.cookies.has('twitch-token')) {
   return Astro.redirect('/');
 }
 
+let cancelledNotes: notes[] = [];
+let completedNotes: notes[] = [];
+let openNotes: notes[] = [];
+let totalNotesAmount: number = 0;
 let displayName = null;
 let image = null;
+let userId = null;
 
 const token = Astro.cookies.get('twitch-token');
 
@@ -27,9 +33,15 @@ try {
     throw (await response.json());
   }
   const { data } = (await response.json());
-  const { id } = data[0];
+  userId = parseInt(data[0].id, 10);
   displayName = data[0].display_name;
   image = data[0].profile_image_url;
+  await db.insert(users).values({ display_name: displayName, user_id: userId, user_name: data[0].login }).onConflictDoNothing();
+  const dbNotes = await db.select().from(notes).where(eq(notes.user_id, userId)) as notes[];
+  cancelledNotes = dbNotes.filter(note => note.status === 'cancelled');
+  completedNotes = dbNotes.filter(note => note.status === 'completed');
+  openNotes = dbNotes.filter(note => note.status !== 'cancelled' && note.status !== 'completed');
+  totalNotesAmount = dbNotes.length;
 } catch (err) {
   // TODO error handling
   // { error: 'Unauthorized', status: 401, message: 'Invalid OAuth token' }
@@ -40,9 +52,10 @@ try {
 <Layout title="Dashboard">
   <h1 class="sr-only">Dashboard</h1>
   <section class="gap-8 grid grid-cols-[240px_1fr] h-dvh w-full">
-    <UserInfo imageUrl={image} name={displayName} />
-    <section class="flex flex-col gap-8 p-4">
-      <Notes />
-    </section>
+    <UserInfo
+      notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
+      imageUrl={image}
+      name={displayName} />
+    <Notes completedNotes={[...cancelledNotes, ...completedNotes]} openNotes={openNotes} userId={userId} />
   </section>
 </Layout>
