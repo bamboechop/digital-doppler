@@ -1,8 +1,8 @@
 ---
-import { db, eq, notes, users } from 'astro:db';
 import UserInfo from '../components/UserInfo.astro';
 import Layout from '../layouts/Layout.astro';
 import Notes from '../components/Notes.astro';
+import { dbClient } from '../lib/db.client';
 
 export const prerender = false;
 
@@ -12,9 +12,9 @@ if(!Astro.cookies.has('twitch-token')) {
   return Astro.redirect('/');
 }
 
-let cancelledNotes: notes[] = [];
-let completedNotes: notes[] = [];
-let openNotes: notes[] = [];
+let cancelledNotes = [];
+let completedNotes = [];
+let openNotes = [];
 let totalNotesAmount: number = 0;
 let displayName = null;
 let image = null;
@@ -36,8 +36,25 @@ try {
   userId = parseInt(data[0].id, 10);
   displayName = data[0].display_name;
   image = data[0].profile_image_url;
-  await db.insert(users).values({ display_name: displayName, user_id: userId, user_name: data[0].login }).onConflictDoNothing();
-  const dbNotes = await db.select().from(notes).where(eq(notes.user_id, userId)) as notes[];
+  await dbClient.users.upsert({
+    create: {
+      display_name: displayName,
+      last_login_date: new Date(),
+      user_id: userId,
+      user_name: data[0].login,
+    },
+    update: {
+      last_login_date: new Date(),
+    },
+    where: {
+      user_id: userId
+    },
+  });
+  const dbNotes = await dbClient.notes.findMany({
+    where: {
+      user_id: userId
+    }
+  });
   cancelledNotes = dbNotes.filter(note => note.status === 'cancelled');
   completedNotes = dbNotes.filter(note => note.status === 'completed');
   openNotes = dbNotes.filter(note => note.status !== 'cancelled' && note.status !== 'completed');
