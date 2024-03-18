@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { db, notes } from 'astro:db';
+import { dbClient } from '../../lib/db.client.ts';
 
 export const POST: APIRoute = async ({ request }) => {
   if(request.headers.get('Content-Type') !== 'application/json') {
@@ -11,7 +11,13 @@ export const POST: APIRoute = async ({ request }) => {
     if(!text || !userId) {
       return new Response(JSON.stringify({ message: 'Missing required fields' }), { status: 400 });
     }
-    await db.insert(notes).values({ text, user_id: userId, date: new Date() });
+    await dbClient.notes.create({
+      data: {
+        date: new Date(),
+        text,
+        user_id: userId,
+      },
+    });
     return new Response(JSON.stringify({ message: 'Success!' }), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({ message: 'Error creating note' }), { status: 500 });

@@ -4,19 +4,20 @@
   "version": "0.0.1",
   "scripts": {
     "astro": "astro",
-    "build": "astro check && astro build",
-    "build:remote-db": "astro check && astro build --remote",
-    "db:push": "npm run astro db push",
+    "build": "rm -rf dist && astro check && astro build",
+    "db:generate:types": "npx prisma generate",
+    "db:migrate": "npx prisma migrate dev",
+    "db:migrate:create": "npx prisma migrate dev --create-only --name rename_me",
+    "db:pull": "npx prisma db pull",
     "dev": "astro dev",
-    "dev:remote-db": "astro dev --remote",
     "preview": "astro preview",
     "start": "astro dev"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.6",
-    "@astrojs/db": "^0.8.1",
     "@astrojs/node": "^8.2.3",
     "@astrojs/tailwind": "^5.1.0",
+    "@prisma/client": "^5.11.0",
     "astro": "^4.5.2",
     "astro-font": "^0.0.77",
     "lucide-astro": "^0.350.0",
@@ -24,5 +25,8 @@
     "sass": "^1.71.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.11.0"
   }
 }
