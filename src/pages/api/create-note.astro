@@ -1,0 +1,52 @@
+---
+import { dbClient } from '../../lib/db.client.ts';
+import SingleNote from '../../components/SingleNote.astro';
+
+if(Astro.request.method !== 'POST') {
+  return new Response('Method not allowed', { status: 405 });
+}
+
+let amountOfNotes = 0;
+let amountOfOpenNotes = 0;
+let note;
+let notes;
+
+try {
+  const formData = await Astro.request.formData();
+  console.log(formData);
+  const text = formData.get('text');
+  const user_id = formData.get('user_id');
+  if(!text || !user_id) {
+    return new Response(JSON.stringify({ message: 'Missing required fields' }), { status: 400 });
+  }
+  if(typeof text !== 'string' || typeof user_id !== 'string') {
+    return new Response(JSON.stringify({ message: 'Wrong field format' }), { status: 400 });
+  }
+  note = await dbClient.notes.create({
+    data: {
+      date: new Date(),
+      text,
+      user_id: parseInt(user_id, 10),
+    },
+  });
+  notes = await dbClient.notes.findMany({
+    where: {
+      user_id: parseInt(user_id, 10),
+    },
+  });
+  amountOfNotes = notes.length;
+  amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+} catch (err) {
+  console.log(err);
+}
+---
+
+<span id="open-notes-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
+
+<span id="work-in-progress-todos-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
+
+<span id="total-todos-amount" hx-swap-oob="true">{amountOfNotes}</span>
+
+<SingleNote id="new-note" hx-swap-oob={amountOfOpenNotes > 2 ? 'delete' : 'true'} type="new" userId={note.user_id} />
+
+<SingleNote noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />

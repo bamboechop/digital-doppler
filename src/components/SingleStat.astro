@@ -3,10 +3,11 @@ interface Props {
   amount: number;
   annotate: { color?: string; show: boolean; type: 'bracket' | 'highlight' | 'underline' };
   cssClass: string;
+  idForHtmxOobSwap: string;
   title: string;
 }
 
-const { amount, annotate, cssClass, title }= Astro.props;
+const { amount, annotate, cssClass, idForHtmxOobSwap, title }= Astro.props;
 ---
 
 <div class:list={[cssClass]}>
@@ -18,7 +19,7 @@ const { amount, annotate, cssClass, title }= Astro.props;
     <slot name="icon"></slot>
     <h3 class="flex gap-2 justify-between leading-snug text-base w-full">
       { title }
-      <span>{ amount }</span>
+      <span id={idForHtmxOobSwap}>{ amount }</span>
     </h3>
   </div>
 </div>

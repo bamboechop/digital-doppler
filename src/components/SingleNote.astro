@@ -2,54 +2,83 @@
 import { CheckSquare, XOctagon } from 'lucide-astro';
 
 interface Props {
-  id: number;
+  noteId: number;
   text?: string;
-  type: 'cancelled' | 'completed' | 'existing' | 'new';
+  type: 'cancelled' | 'completed' | 'in-progress' | 'new';
   userId: string;
 }
-const { id, text, type, userId } = Astro.props;
+const { noteId, text, type, userId, ...rest } = Astro.props;
 
 const minLength = 20;
+
+let id = 'new-note';
+if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
+  id = `note${noteId}`;
+}
 ---
 
-<article class="bg-yellow-300 flex flex-col text-black max-w-96 w-full">
-  <header class="bg-yellow-400 flex items-center px-2 h-14">
-    {type === 'new' && 'Neues Todo erstellen'}
-  </header>
-  <label class="block px-2">
+<article
+  class="bg-yellow-300 flex flex-col text-black max-w-96 w-full shadow-lg"
+  class:list={[{ 'absolute': ['cancelled', 'completed'].includes(type) }]}
+  id={id}
+  {...rest}>
+  <form
+    hx-post="/api/create-note"
+    hx-swap="beforeend"
+    hx-target="#open-notes"
+    hx-vals={`{"user_id": "${userId}"}`}>
+    <header class="bg-yellow-400 flex items-center px-2 h-14">
+      {type === 'new' && 'Neues Todo erstellen'}
+    </header>
+    <label class="block px-2">
     <textarea
       autocomplete="off"
       autofocus={type === 'new'}
       class="bg-transparent resize-none w-full outline-0 single-note-textarea"
-      disabled={type === 'existing'}
+      disabled={type !== 'new'}
+      name="text"
       minlength={minLength}
       placeholder="Küche putzen, Einkaufen, ..."
       required
       rows="6">{text}</textarea>
-  </label>
-  <footer class="flex items-center justify-between mt-auto px-2 pb-2">
-    {type === 'in-progress' &&
-      <button class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button">
-        <XOctagon size="20" />
-        Abbrechen
-      </button>
-      <button class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button">
-        <CheckSquare size="20" />
-        Erledigt
-      </button>
-    }
-    {type === 'new' &&
-      <span class="text-xs textarea-counter-info">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
-      <button
-        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
-        disabled>
-        Speichern
-      </button>
-    }
-  </footer>
+    </label>
+    <footer class="flex items-center justify-between mt-auto px-2 pb-2">
+      {type === 'in-progress' &&
+        <button
+          class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button"
+          hx-patch="/api/update-note"
+          hx-swap="delete"
+          hx-target={`#note${noteId}`}
+          hx-vals={`{ "note_id": "${noteId}", "status": "cancelled", "user_id": "${userId}" }`}
+          type="button">
+          <XOctagon size="20" />
+          Abbrechen
+        </button>
+        <button
+          class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button"
+          hx-patch="/api/update-note"
+          hx-swap="delete"
+          hx-target={`#note${noteId}`}
+          hx-vals={`{"note_id": "${noteId}", "status": "completed", "user_id": "${userId}"}`}
+          type="button">
+          <CheckSquare size="20" />
+          Erledigt
+        </button>
+      }
+      {type === 'new' &&
+        <span class="text-xs textarea-counter-info">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
+        <button
+          class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
+          disabled
+          type="submit">
+          Speichern
+        </button>
+      }
+    </footer>
+  </form>
 </article>
 
-<script define:vars={{ noteId: id, minLength, type, userId }}>
+<script define:vars={{ id, minLength, type }}>
   if(type === 'new') {
     const footer = document.querySelector('footer');
     const saveButton = document.querySelector('.save-button');
@@ -79,64 +108,34 @@ const minLength = 20;
       }
     });
 
-    saveButton.addEventListener('click', async () => {
-      try {
-        await fetch('/api/create-note', {
-          body: JSON.stringify({
-            text: textarea.value,
-            userId,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        });
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-      }
+    saveButton.addEventListener('click', () => {
+      window.setTimeout(() => {
+        textarea.value = '';
+        saveButton.disabled = true;
+        saveButton.classList.add('cursor-not-allowed');
+        counter.textContent = '20';
+        textAreaCounterInfo.classList.remove('hidden');
+        footer.classList.remove('justify-end');
+        footer.classList.add('justify-between');
+      }, 0);
     });
   }
 
-  if(type === 'in-progress') {
-    const cancelButton = document.querySelector('.cancel-button');
-    const resolveButton = document.querySelector('.resolve-button');
-
-    cancelButton.addEventListener('click', async () => {
-      try {
-        await fetch('/api/update-note', {
-          body: JSON.stringify({
-            noteId,
-            status: 'cancelled',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        });
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-      }
-    });
-
-    resolveButton.addEventListener('click', async () => {
-      try {
-        const response = await fetch('/api/update-note', {
-          body: JSON.stringify({
-            noteId,
-            status: 'completed',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        });
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-      }
-    });
+  if(['cancelled', 'completed'].includes(type)) {
+    const container = document.querySelector('#completed-notes');
+    const note = document.querySelector(`#${id}`);
+    if(container) {
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+      const noteWidth = note.offsetWidth;
+      const noteHeight = note.offsetHeight;
+      const randomX = (20 + Math.floor(Math.random() * (containerWidth - noteWidth - 40))) / containerWidth * 100;
+      const randomY = (20 + Math.floor(Math.random() * (containerHeight - noteHeight - 40))) / containerHeight * 100;
+      note.style.left = `${randomX}%`;
+      note.style.top = `${randomY}%`;
+      const randomRotation = Math.floor(Math.random() * 21) - 10;
+      note.style.transform = `rotate(${randomRotation}deg)`;
+    }
   }
 </script>
 
@@ -149,7 +148,10 @@ const minLength = 20;
       linear-gradient(to right, $background 10px, transparent 10px),
       linear-gradient(to left, $background 10px, transparent 10px),
       repeating-linear-gradient($background, $background 30px, #707070 30px, #707070 31px, $background 31px);
-    font-family: 'DancingScript';
+    color: #464646;
+    font-family: 'Caveat';
+    font-weight: 400;
+    font-size: 1.5rem;
     line-height: 31px;
     padding: 8px 10px;
 

@@ -13,17 +13,17 @@ interface Props {
 
 const { notesAmount } = Astro.props;
 
-const stats: { annotate?: { color?: string; show: boolean; type: 'box' | 'crossed-off' | 'highlight' | 'underline' }; cssClass?: string; icon: any; label: string; value: number }[] = [
-  { annotate: { color: '#fc3597', show: true, type: 'highlight' }, icon: LayoutList, label: 'Todos insgesamt:', value: notesAmount.total },
-  { annotate: { color: 'limegreen', show: true, type: 'underline' }, cssClass: 'mt-[-14px] text-green-300', icon: CheckSquare, label: 'Todos erledigt:', value: notesAmount.completed },
-  { annotate: { color: 'lightskyblue', show: false, type: 'box' }, icon: ListTodo, label: 'Todos in Arbeit:', value: notesAmount.inProgress },
-  { annotate: { show: true, type: 'crossed-off' }, cssClass: 'text-gray-300', icon: XOctagon, label: 'Todos abgebrochen:', value: notesAmount.cancelled },
+const stats: { annotate?: { color?: string; show: boolean; type: 'box' | 'crossed-off' | 'highlight' | 'underline' }; cssClass?: string; icon: any; idForHtmxOobSwap: string; label: string; value: number }[] = [
+  { annotate: { color: '#fc3597', show: true, type: 'highlight' }, icon: LayoutList, idForHtmxOobSwap: 'total-todos-amount', label: 'Todos insgesamt:', value: notesAmount.total },
+  { annotate: { color: 'limegreen', show: true, type: 'underline' }, cssClass: 'mt-[-14px] text-green-300', icon: CheckSquare, idForHtmxOobSwap: 'completed-todos-amount', label: 'Todos erledigt:', value: notesAmount.completed },
+  { annotate: { color: 'lightskyblue', show: false, type: 'box' }, icon: ListTodo, idForHtmxOobSwap: 'work-in-progress-todos-amount', label: 'Todos in Arbeit:', value: notesAmount.inProgress },
+  { annotate: { show: true, type: 'crossed-off' }, cssClass: 'text-gray-300', icon: XOctagon, idForHtmxOobSwap: 'cancelled-todos-amount', label: 'Todos abgebrochen:', value: notesAmount.cancelled },
 ];
 ---
 
 <section class="flex flex-col gap-6">
   {stats.map((stat) => (
-    <SingleStat amount={stat.value} annotate={stat.annotate} cssClass={stat.cssClass} title={stat.label}>
+    <SingleStat amount={stat.value} annotate={stat.annotate} cssClass={stat.cssClass} idForHtmxOobSwap={stat.idForHtmxOobSwap} title={stat.label}>
       <stat.icon class="shrink-0" size="24" slot="icon" />
     </SingleStat>
   ))}

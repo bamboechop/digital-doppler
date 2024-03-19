@@ -1,0 +1,74 @@
+---
+import { dbClient } from '../../lib/db.client';
+import SingleNote from '../../components/SingleNote.astro';
+
+if(Astro.request.method !== 'PATCH') {
+  return new Response('Method not allowed', { status: 405 });
+}
+
+let amountOfCancelledNotes = 0;
+let amountOfClosedNotes = 0;
+let amountOfCompletedNotes = 0;
+let amountOfNotes = 0;
+let amountOfOpenNotes = 0;
+let note;
+let notes;
+
+try {
+  const formData = await Astro.request.formData();
+  const note_id = formData.get('note_id');
+  const status = formData.get('status');
+  const user_id = formData.get('user_id');
+
+  if(!note_id || !status || !user_id) {
+    return new Response('Invalid request', { status: 400 });
+  }
+
+  if(typeof note_id !== 'string' || typeof status !== 'string' || typeof user_id !== 'string') {
+    return new Response('Invalid request', { status: 400 });
+  }
+
+  note = await dbClient.notes.update({
+    data: {
+      status,
+    },
+    where: {
+      note_id: parseInt(note_id, 10),
+      user_id: parseInt(user_id, 10),
+    },
+  });
+  notes = await dbClient.notes.findMany({
+    where: {
+      user_id: parseInt(user_id, 10),
+    },
+  });
+  amountOfCancelledNotes = notes.filter((note) => note.status === 'cancelled').length;
+  amountOfClosedNotes = notes.filter((note) => ['cancelled', 'completed'].includes(note.status)).length;
+  amountOfCompletedNotes = notes.filter((note) => note.status === 'completed').length;
+  amountOfNotes = notes.length;
+  amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+} catch (err) {
+  console.error(err);
+}
+---
+
+<span id="closed-notes-amount" hx-swap-oob="true">{amountOfClosedNotes}</span>
+
+<span id="open-notes-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
+
+<span id="work-in-progress-todos-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
+
+<span id="total-todos-amount" hx-swap-oob="true">{amountOfNotes}</span>
+
+<span id="completed-todos-amount" hx-swap-oob="true">{amountOfCompletedNotes}</span>
+
+<span id="cancelled-todos-amount" hx-swap-oob="true">{amountOfCancelledNotes}</span>
+
+{amountOfOpenNotes === 2
+  ? <div id="open-notes" hx-swap-oob="afterbegin"><SingleNote type="new" userId={note.user_id} /></div>
+  : undefined
+}
+
+<div id="completed-notes" hx-swap-oob="afterbegin">
+  <SingleNote noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
+</div>
