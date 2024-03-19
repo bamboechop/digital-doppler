@@ -13,7 +13,6 @@ let notes;
 
 try {
   const formData = await Astro.request.formData();
-  console.log(formData);
   const text = formData.get('text');
   const user_id = formData.get('user_id');
   if(!text || !user_id) {
