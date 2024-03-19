@@ -9,12 +9,11 @@ interface Props {
 
 const { class: className, title, ...rest } = Astro.props;
 
-const backgrounds = ['bg/1.png', 'bg/2.png', 'bg/3.png', 'bg/4.png', 'bg/5.png', 'bg/6.png', 'bg/7.png'];
-const backgroundImageUrl = `url('${backgrounds[Math.floor(Math.random() * backgrounds.length)]}')`;
+const backgroundImageUrl = Astro.cookies.get('background-image-url')?.value ?? 'bg/1.png';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="de">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />

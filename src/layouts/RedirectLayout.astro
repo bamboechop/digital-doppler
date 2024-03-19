@@ -5,9 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-const backgrounds = ['bg/1.png', 'bg/2.png', 'bg/3.png', 'bg/4.png', 'bg/5.png', 'bg/6.png', 'bg/7.png'];
-const backgroundImageUrl = `url('${backgrounds[Math.floor(Math.random() * backgrounds.length)]}')`;
-Astro.cookies.set('background-image-url', backgroundImageUrl);
+const backgroundImageUrl = Astro.cookies.get('background-image-url')?.value ?? 'bg/1.png';
 ---
 
 <!doctype html>
@@ -20,15 +18,15 @@ Astro.cookies.set('background-image-url', backgroundImageUrl);
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class="bg-[#230f01]">
-    <main class="flex items-center justify-center min-h-dvh text-white text-xl">
+  <body class="bg-[#230f01] bg-background-pattern flex items-center justify-center min-h-dvh">
+    <main class="flex flex-col items-center justify-center relative text-white text-lg gap-4">
       <slot />
     </main>
   </body>
 </html>
 
 <style define:vars={{ backgroundImageUrl }} is:global lang="scss">
-  body {
-    background-image: var(--backgroundImageUrl);
+  :root {
+    --background-image-url: var(--backgroundImageUrl);
   }
 </style>

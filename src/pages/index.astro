@@ -1,25 +1,21 @@
 ---
 import LogInLayout from '../layouts/LogInLayout.astro';
+
+if(Astro.cookies.has('twitch-token')) {
+  return Astro.redirect('/dashboard');
+}
 ---
 
-<LogInLayout title="Welcome to Astro.">
-  <h1 class="sr-only">Welcome to Astro.</h1>
-  <a
-    class="bg-[#9146ff] hover:bg-[#671ed7] text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
-    data-twitch-login-button
-    href={`https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_TWITCH_REDIRECT_URI}&response_type=${import.meta.env.PUBLIC_TWITCH_RESPONSE_TYPE}&scope=${encodeURIComponent(import.meta.env.PUBLIC_TWITCH_SCOPE)}&state=${import.meta.env.PUBLIC_TWITCH_STATE}`}>
-    Log in with Twitch
-  </a>
-  <span class="hidden loader"></span>
+<LogInLayout title="login/coworking/bamboechop">
+  <section class="bg-[#102269] bg-background-black-linen outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl px-24 py-16 shadow-lg h-min font-sans relative">
+    <h1 class="sr-only">Welcome to Astro.</h1>
+    <a
+      class="bg-[#9146ff] text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
+      href={`https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_TWITCH_REDIRECT_URI}&response_type=${import.meta.env.PUBLIC_TWITCH_RESPONSE_TYPE}&scope=${encodeURIComponent(import.meta.env.PUBLIC_TWITCH_SCOPE)}&state=${import.meta.env.PUBLIC_TWITCH_STATE}`}>
+      Log in with Twitch
+    </a>
+  </section>
 </LogInLayout>
-
-<script>
-  if(window.sessionStorage.getItem('twitch-token')) {
-    document.querySelector('a[data-twitch-login-button]').classList.add('hidden');
-    document.querySelector('.loader').classList.remove('hidden');
-    window.location.href = '/dashboard';
-  }
-</script>
 
 <style lang="scss">
   .loader {
