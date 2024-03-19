@@ -69,6 +69,6 @@ try {
   : undefined
 }
 
-<div id="completed-notes" hx-swap-oob="afterbegin">
+<div id="completed-notes" hx-swap-oob="beforeend">
   <SingleNote noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
 </div>
