@@ -5,7 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-const backgroundImageUrl = Astro.cookies.get('background-image-url')?.value ?? 'bg/1.png';
+const backgroundImageUrl = Astro.cookies.has('background-image-url') ? Astro.cookies.get('background-image-url').value : '/bg/1.png';
 ---
 
 <!doctype html>

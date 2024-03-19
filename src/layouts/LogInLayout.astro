@@ -5,7 +5,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-const backgrounds = ['bg/1.png', 'bg/2.png', 'bg/3.png', 'bg/4.png', 'bg/5.png', 'bg/6.png', 'bg/7.png'];
+const backgrounds = ['/bg/1.png', '/bg/2.png', '/bg/3.png', '/bg/4.png', '/bg/5.png', '/bg/6.png', '/bg/7.png'];
 const backgroundImageUrl = `url('${backgrounds[Math.floor(Math.random() * backgrounds.length)]}')`;
 Astro.cookies.set('background-image-url', backgroundImageUrl);
 ---
