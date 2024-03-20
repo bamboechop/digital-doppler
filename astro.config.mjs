@@ -15,7 +15,7 @@ export default defineConfig({
   integrations: [tailwind()],
   output: 'server',
   server: {
-    host: env.PROD ? '0.0.0.0' : undefined,
+    host: env.HOST ?? undefined,
     port: env.PORT ? parseInt(env.PORT, 10) : 4321
   },
   site: env.SITE_URL ?? undefined,
