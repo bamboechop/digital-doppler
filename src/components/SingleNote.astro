@@ -36,7 +36,11 @@ const Element = type === 'new' ? 'form' : 'div';
     autocomplete="off"
     autofocus={type === 'new'}
     class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
-    class:list={[{ 'overflow-hidden': ['cancelled', 'completed'].includes(type) }]}
+    class:list={[
+      { 'overflow-hidden': ['cancelled', 'completed'].includes(type) },
+      { 'line-through': type === 'cancelled' },
+      { '': type === 'completed' },
+    ]}
     disabled={type !== 'new'}
     name="text"
     minlength={minLength}
