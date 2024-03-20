@@ -67,6 +67,22 @@ const backgroundImageUrl = Astro.cookies.has('background-image-url') ? Astro.coo
 				fallback: 'sans-serif',
 			},
 		]} />
+		<style is:global lang="scss">
+			* {
+				&::-webkit-scrollbar {
+					width: 4px;
+				}
+
+				&::-webkit-scrollbar-track {
+					background: transparent;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background-color: theme('backgroundColor.stone.800');
+					border-radius: 10px;
+				}
+			}
+		</style>
 	</head>
 	<body class="bg-[#230f01] bg-background-pattern flex items-center justify-center min-h-dvh">
 		<main
