@@ -13,5 +13,5 @@ export default defineConfig({
     host: import.meta.env.PROD ? '0.0.0.0' : undefined,
     port: import.meta.env.PORT ?? 4321
   },
-  // site: 'https://digital-doppler.bamboechop.at',
+  site: import.meta.env.SITE_URL ?? undefined,
 });
