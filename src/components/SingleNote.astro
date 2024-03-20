@@ -9,74 +9,82 @@ interface Props {
 }
 const { noteId, text, type, userId, ...rest } = Astro.props;
 
-const minLength = 20;
+const minLength = 3;
 
 let id = 'new-note';
 if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
   id = `note${noteId}`;
 }
+
+const Element = type === 'new' ? 'form' : 'div';
 ---
 
-<article
+<Element
   class="bg-yellow-300 flex flex-col text-black max-w-96 w-full shadow-lg"
-  class:list={[{ 'absolute': ['cancelled', 'completed'].includes(type) }]}
+  class:list={[{ 'absolute pointer-events-none': ['cancelled', 'completed'].includes(type) }]}
   id={id}
-  {...rest}>
-  <form
-    hx-post="/api/create-note"
-    hx-swap="beforeend"
-    hx-target="#open-notes"
-    hx-vals={`{"user_id": "${userId}"}`}>
-    <header class="bg-yellow-400 flex items-center px-2 h-14">
-      {type === 'new' && 'Neues Todo erstellen'}
-    </header>
-    <label class="block px-2">
-    <textarea
-      autocomplete="off"
-      autofocus={type === 'new'}
-      class="bg-transparent resize-none w-full outline-0 single-note-textarea"
-      disabled={type !== 'new'}
-      name="text"
-      minlength={minLength}
-      placeholder="Küche putzen, Einkaufen, ..."
-      required
-      rows="6">{text}</textarea>
-    </label>
-    <footer class="flex items-center justify-between mt-auto px-2 pb-2">
-      {type === 'in-progress' &&
-        <button
-          class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button"
-          hx-patch="/api/update-note"
-          hx-swap="delete"
-          hx-target={`#note${noteId}`}
-          hx-vals={`{ "note_id": "${noteId}", "status": "cancelled", "user_id": "${userId}" }`}
-          type="button">
-          <XOctagon size="20" />
-          Abbrechen
-        </button>
-        <button
-          class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button"
-          hx-patch="/api/update-note"
-          hx-swap="delete"
-          hx-target={`#note${noteId}`}
-          hx-vals={`{"note_id": "${noteId}", "status": "completed", "user_id": "${userId}"}`}
-          type="button">
-          <CheckSquare size="20" />
-          Erledigt
-        </button>
-      }
-      {type === 'new' &&
-        <span class="text-xs textarea-counter-info">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
-        <button
-          class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
-          disabled
-          type="submit">
-          Speichern
-        </button>
-      }
-    </footer>
-  </form>
-</article>
+  {...rest}
+  hx-post={type === 'new' ? '/api/create-note' : undefined}
+  hx-swap={type === 'new' ? 'beforeend' : undefined}
+  hx-target={type === 'new' ? '#open-notes' : undefined}
+  hx-vals={type === 'new' ? `{"user_id": "${userId}"}` : undefined}>
+  <header class="bg-yellow-400 flex items-center px-2 h-14">
+    {type === 'new' && 'Neues Todo erstellen'}
+  </header>
+  <label class="block px-2">
+  <textarea
+    autocomplete="off"
+    autofocus={type === 'new'}
+    class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
+    class:list={[{ 'overflow-hidden': ['cancelled', 'completed'].includes(type) }]}
+    disabled={type !== 'new'}
+    name="text"
+    minlength={minLength}
+    placeholder="Küche putzen, Einkaufen, ..."
+    required
+    rows="6">{text}</textarea>
+  </label>
+  <footer
+    class="flex mt-auto px-2 pb-2"
+    class:list={[{
+      'flex-col items-end': type === 'new',
+      'items-center justify-between': type === 'in-progress',
+    }]}>
+    {type === 'in-progress' &&
+      <button
+        class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button"
+        hx-patch="/api/update-note"
+        hx-swap="delete"
+        hx-target={`#note${noteId}`}
+        hx-vals={`{ "note_id": "${noteId}", "status": "cancelled", "user_id": "${userId}" }`}
+        type="button">
+        <XOctagon size="20" />
+        Abbrechen
+      </button>
+      <button
+        class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button"
+        hx-patch="/api/update-note"
+        hx-swap="delete"
+        hx-target={`#note${noteId}`}
+        hx-vals={`{"note_id": "${noteId}", "status": "completed", "user_id": "${userId}"}`}
+        type="button">
+        <CheckSquare size="20" />
+        Erledigt
+      </button>
+    }
+    {type === 'new' &&
+      <div class="flex h-4">
+        <span class="text-xs textarea-counter-info mr-1">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
+      </div>
+      <button
+        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
+        disabled
+        type="submit">
+        Speichern
+      </button>
+    }
+  </footer>
+</Element>
 
 <script define:vars={{ id, minLength, type }}>
   if(type === 'new') {
@@ -108,6 +116,12 @@ if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
       }
     });
 
+    textarea.addEventListener('keypress', (event) => {
+      if(event.key === 'Enter' && textarea.value.split('\n').length >= 6) {
+        event.preventDefault();
+      }
+    })
+
     saveButton.addEventListener('click', () => {
       window.setTimeout(() => {
         textarea.value = '';
@@ -133,8 +147,7 @@ if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
       const randomY = (20 + Math.floor(Math.random() * (containerHeight - noteHeight - 40))) / containerHeight * 100;
       note.style.left = `${randomX}%`;
       note.style.top = `${randomY}%`;
-      const randomRotation = Math.floor(Math.random() * 21) - 10;
-      note.style.transform = `rotate(${randomRotation}deg)`;
+      note.style.transform = `rotate(${Math.floor(Math.random() * 21) - 10}deg)`;
     }
   }
 </script>
@@ -153,7 +166,6 @@ if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
     font-weight: 400;
     font-size: 1.5rem;
     line-height: 31px;
-    padding: 8px 10px;
 
     &::placeholder {
       color: #707070;
