@@ -73,6 +73,10 @@ try {
       notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
       imageUrl={image}
       name={displayName} />
-    <Notes completedNotes={[...cancelledNotes, ...completedNotes]} openNotes={openNotes} userId={userId} />
+    <Notes
+      completedNotes={[...cancelledNotes, ...completedNotes]}
+      displayName={displayName}
+      openNotes={openNotes}
+      userId={userId} />
   </section>
 </Layout>

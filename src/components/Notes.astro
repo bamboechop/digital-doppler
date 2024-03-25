@@ -1,14 +1,14 @@
 ---
 import { Image } from 'astro:assets';
 import SingleNote from './SingleNote.astro';
-import { notes } from 'astro:db';
 
 interface Props {
-  completedNotes: notes[];
-  openNotes: notes[];
+  completedNotes: any[];
+  displayName: string;
+  openNotes: any[];
   userId: string;
 }
-const { completedNotes, openNotes, userId } = Astro.props;
+const { completedNotes, displayName, openNotes, userId } = Astro.props;
 ---
 
 <section class="flex flex-col p-4">
@@ -19,9 +19,17 @@ const { completedNotes, openNotes, userId } = Astro.props;
     <section
       class="flex flex-wrap gap-2 px-6"
       id="open-notes">
-      {openNotes.length < 3 && <SingleNote type="new" userId={userId} />}
+      {openNotes.length < 3 && <SingleNote
+        type="new"
+        displayName={displayName}
+        userId={userId} />}
       {openNotes.map((note) => (
-        <SingleNote noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
+        <SingleNote
+          displayName={displayName}
+          noteId={note.note_id}
+          text={note.text}
+          type={note.status}
+          userId={note.user_id} />
       ))}
     </section>
   </section>
@@ -41,6 +49,7 @@ const { completedNotes, openNotes, userId } = Astro.props;
       title="Alle Todos ansehen">
       {completedNotes.map((note) => (
         <SingleNote
+          displayName={displayName}
           noteId={note.note_id}
           text={note.text}
           type={note.status} />

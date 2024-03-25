@@ -2,12 +2,13 @@
 import { CheckSquare, XOctagon } from 'lucide-astro';
 
 interface Props {
+  displayName: string;
   noteId: number;
   text?: string;
   type: 'cancelled' | 'completed' | 'in-progress' | 'new';
   userId: string;
 }
-const { noteId, text, type, userId, ...rest } = Astro.props;
+const { displayName, noteId, text, type, userId, ...rest } = Astro.props;
 
 const minLength = 3;
 
@@ -27,7 +28,7 @@ const Element = type === 'new' ? 'form' : 'div';
   hx-post={type === 'new' ? '/api/create-note' : undefined}
   hx-swap={type === 'new' ? 'beforeend' : undefined}
   hx-target={type === 'new' ? '#open-notes' : undefined}
-  hx-vals={type === 'new' ? `{"user_id": "${userId}"}` : undefined}>
+  hx-vals={type === 'new' ? `{"display_name": "${displayName}", "user_id": "${userId}"}` : undefined}>
   <header class="bg-yellow-400 flex items-center px-2 h-14">
     {type === 'new' && 'Neues Todo erstellen'}
   </header>
@@ -60,7 +61,7 @@ const Element = type === 'new' ? 'form' : 'div';
         hx-patch="/api/update-note"
         hx-swap="delete"
         hx-target={`#note${noteId}`}
-        hx-vals={`{ "note_id": "${noteId}", "status": "cancelled", "user_id": "${userId}" }`}
+        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "cancelled", "text": "${text}", "user_id": "${userId}" }`}
         type="button">
         <XOctagon size="20" />
         Abbrechen
@@ -70,7 +71,7 @@ const Element = type === 'new' ? 'form' : 'div';
         hx-patch="/api/update-note"
         hx-swap="delete"
         hx-target={`#note${noteId}`}
-        hx-vals={`{"note_id": "${noteId}", "status": "completed", "user_id": "${userId}"}`}
+        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "completed", "text": "${text}", "user_id": "${userId}" }`}
         type="button">
         <CheckSquare size="20" />
         Erledigt
