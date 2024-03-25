@@ -1,7 +1,8 @@
 {
+  "author": "bamboechop <info@bamboechop.at>",
   "name": "digital-doppler",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "astro": "npx astro",
     "build": "rm -rf dist && npx astro check && npx astro build",
