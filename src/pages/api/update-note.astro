@@ -11,20 +11,23 @@ let amountOfClosedNotes = 0;
 let amountOfCompletedNotes = 0;
 let amountOfNotes = 0;
 let amountOfOpenNotes = 0;
+let displayName;
 let note;
 let notes;
 
 try {
   const formData = await Astro.request.formData();
+  displayName = formData.get('display_name');
   const note_id = formData.get('note_id');
   const status = formData.get('status');
+  const text = formData.get('text');
   const user_id = formData.get('user_id');
 
-  if(!note_id || !status || !user_id) {
+  if(!displayName || !note_id || !status || !text || !user_id) {
     return new Response('Invalid request', { status: 400 });
   }
 
-  if(typeof note_id !== 'string' || typeof status !== 'string' || typeof user_id !== 'string') {
+  if(typeof displayName !== 'string' || typeof note_id !== 'string' || typeof status !== 'string' || typeof text !== 'string' || typeof user_id !== 'string') {
     return new Response('Invalid request', { status: 400 });
   }
 
@@ -47,6 +50,19 @@ try {
   amountOfCompletedNotes = notes.filter((note) => note.status === 'completed').length;
   amountOfNotes = notes.length;
   amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+
+  await fetch(import.meta.env.BAMBBOT_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
+    },
+    body: JSON.stringify({
+      displayName,
+      status,
+      text,
+    }),
+  });
 } catch (err) {
   console.error(err);
 }
@@ -65,10 +81,10 @@ try {
 <span id="cancelled-todos-amount" hx-swap-oob="true">{amountOfCancelledNotes}</span>
 
 {amountOfOpenNotes === 2
-  ? <div id="open-notes" hx-swap-oob="afterbegin"><SingleNote type="new" userId={note.user_id} /></div>
+  ? <div id="open-notes" hx-swap-oob="afterbegin"><SingleNote displayName={displayName} type="new" userId={note.user_id} /></div>
   : undefined
 }
 
 <div id="completed-notes" hx-swap-oob="beforeend">
-  <SingleNote noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
+  <SingleNote displayName={displayName} noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
 </div>
