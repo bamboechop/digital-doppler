@@ -9,7 +9,6 @@ import RedirectLayout from '../layouts/RedirectLayout.astro';
 
 <script>
   (async () => {
-    const main = document.querySelector('main');
     if(window.location.search) {
       const queryParams = new URLSearchParams(window.location.search);
       const errorNode = document.createElement('p');
@@ -19,7 +18,7 @@ import RedirectLayout from '../layouts/RedirectLayout.astro';
       const linkNode = document.createElement('a');
       linkNode.textContent = 'Go back';
       linkNode.href = '/';
-      main.replaceChildren(...[
+      document.querySelector('main')?.replaceChildren(...[
         errorNode,
         errorDescriptionNode,
         linkNode,
