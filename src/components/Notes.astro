@@ -25,6 +25,7 @@ const { completedNotes, displayName, openNotes, userId } = Astro.props;
         userId={userId} />}
       {openNotes.map((note) => (
         <SingleNote
+          date={note.date}
           displayName={displayName}
           noteId={note.note_id}
           text={note.text}
@@ -49,6 +50,7 @@ const { completedNotes, displayName, openNotes, userId } = Astro.props;
       title="Alle Todos ansehen">
       {completedNotes.map((note) => (
         <SingleNote
+          date={note.date}
           displayName={displayName}
           noteId={note.note_id}
           text={note.text}
