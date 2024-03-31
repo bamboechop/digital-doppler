@@ -1,5 +1,5 @@
 ---
-import { CheckSquare, XOctagon } from 'lucide-astro';
+import { CheckSquare, CheckSquare2, Square, XSquare, XOctagon } from 'lucide-astro';
 
 interface Props {
   displayName: string;
@@ -30,27 +30,38 @@ const Element = type === 'new' ? 'form' : 'div';
   hx-swap={type === 'new' ? 'beforeend' : undefined}
   hx-target={type === 'new' ? '#open-notes' : undefined}
   hx-vals={type === 'new' ? `{"display_name": "${displayName}", "user_id": "${userId}"}` : undefined}>
-  <header class="bg-yellow-400 flex items-center px-2 h-14">
-    {type === 'new' && 'Neues Todo erstellen'}
-  </header>
-  <label class="block px-2">
-  <textarea
-    autocomplete="off"
-    autofocus={type === 'new'}
-    class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
+  <header
+    class="bg-yellow-400 flex items-center px-2 h-14"
     class:list={[
-      { 'overflow-hidden': ['cancelled', 'completed'].includes(type) },
-      { 'line-through': type === 'cancelled' },
-      { '': type === 'completed' },
-    ]}
-    disabled={type !== 'new'}
-    maxlength={maxLength}
-    minlength={minLength}
-    name="text"
-    placeholder="Küche putzen, Einkaufen, ..."
-    required
-    rows="6">{text}</textarea>
-  </label>
+      { 'justify-between': type === 'new' },
+      { 'justify-end': type !== 'new' },
+    ]}>
+    {type === 'new' && 'Neues Todo erstellen'}
+    {type === 'in-progress' && <Square size="42" />}
+    {type === 'cancelled' && <XSquare class="note-icon-cancelled"  size="42" />}
+    {type === 'completed' && <CheckSquare2 class="note-icon-completed" size="42" />}
+  </header>
+  <label
+    class="block px-2"
+    class:list={[
+      { 'relative': type === 'completed' },
+    ]}>
+    <textarea
+      autocomplete="off"
+      autofocus={type === 'new'}
+      class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
+      class:list={[
+        { 'overflow-hidden': ['cancelled', 'completed'].includes(type) },
+        { 'line-through': type === 'cancelled' },
+      ]}
+      disabled={type !== 'new'}
+      maxlength={maxLength}
+      minlength={minLength}
+      name="text"
+      placeholder="Küche putzen, Einkaufen, ..."
+      required
+      rows="6">{text}</textarea>
+    </label>
   <footer
     class="flex mt-auto px-2 pb-2"
     class:list={[{
@@ -161,6 +172,14 @@ const Element = type === 'new' ? 'form' : 'div';
 
 <style lang="scss">
   $background: theme('colors.yellow.300');
+
+  :global(.note-icon-cancelled path) {
+    stroke: theme('colors.red.600');
+  }
+
+  :global(.note-icon-completed path) {
+    stroke: theme('colors.green.600');
+  }
 
   .single-note-textarea {
     background-attachment: local;
