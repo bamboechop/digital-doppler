@@ -2,12 +2,12 @@
 import LogInLayout from '../layouts/LogInLayout.astro';
 import type { ErrorType } from '../common/types/index.type';
 import { XCircle } from 'lucide-astro';
-
-if(Astro.cookies.has('twitch-token')) {
-  return Astro.redirect('/dashboard');
-}
+import IsLive from '../components/IsLive.astro';
+import IsNotLive from '../components/IsNotLive.astro';
 
 let errorMessage: string;
+
+const { isOnline } = Astro.locals;
 
 if(Astro.url.searchParams.size > 0) {
   const errorType = Astro.url.searchParams.get('error') as ErrorType;
@@ -21,13 +21,15 @@ if(Astro.url.searchParams.size > 0) {
 ---
 
 <LogInLayout title="login/coworking/bamboechop">
-  <section class="bg-[#102269] bg-background-black-linen outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl px-24 py-16 shadow-lg h-min font-sans relative">
+  <section class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl px-24 pt-16 pb-14 shadow-lg h-min font-sans relative">
     <h1 class="sr-only">Coworking mit bamboechop</h1>
     <a
-      class="bg-[#9146ff] text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
+      class="bg-[#9146ff] w-max text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
       href={`https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_TWITCH_REDIRECT_URI}&response_type=${import.meta.env.PUBLIC_TWITCH_RESPONSE_TYPE}&scope=${encodeURIComponent(import.meta.env.PUBLIC_TWITCH_SCOPE)}&state=${import.meta.env.PUBLIC_TWITCH_STATE}`}>
       Mit Twitch anmelden
     </a>
+    {!isOnline && <IsNotLive />}
+    {isOnline && <IsLive />}
   </section>
   {errorMessage && (
     <div

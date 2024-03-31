@@ -3,14 +3,9 @@ import UserInfo from '../components/UserInfo.astro';
 import Layout from '../layouts/Layout.astro';
 import Notes from '../components/Notes.astro';
 import { dbClient } from '../lib/db.client';
+import SmallDisplay from '../components/SmallDisplay.astro';
 
 export const prerender = false;
-
-const clientId = import.meta.env.PUBLIC_TWITCH_CLIENT_ID;
-
-if(!Astro.cookies.has('twitch-token')) {
-  return Astro.redirect('/');
-}
 
 let cancelledNotes = [];
 let completedNotes = [];
@@ -26,7 +21,7 @@ try {
   const response = await fetch('https://api.twitch.tv/helix/users', {
     headers: {
       Authorization: `Bearer ${token.value}`,
-      'Client-Id': clientId,
+      'Client-Id': import.meta.env.PUBLIC_TWITCH_CLIENT_ID,
     }
   });
   if(response.status < 200 || response.status >= 300) {
@@ -74,10 +69,13 @@ try {
 <Layout title="dashboard/coworking/bamboechop">
   <h1 class="sr-only">Dashboard</h1>
   <section class="gap-8 grid grid-cols-[240px_1fr] h-dvh w-full">
-    <UserInfo
-      notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
-      imageUrl={image}
-      name={displayName} />
+    <div class="flex flex-col justify-between">
+      <UserInfo
+        notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
+        imageUrl={image}
+        name={displayName} />
+      <SmallDisplay />
+    </div>
     <Notes
       completedNotes={[...cancelledNotes, ...completedNotes]}
       displayName={displayName}
