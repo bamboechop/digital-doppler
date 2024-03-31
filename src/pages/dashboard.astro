@@ -32,6 +32,7 @@ try {
   if(response.status < 200 || response.status >= 300) {
     throw (await response.json());
   }
+
   const { data } = (await response.json());
   userId = parseInt(data[0].id, 10);
   displayName = data[0].display_name;
@@ -60,8 +61,12 @@ try {
   openNotes = dbNotes.filter(note => note.status !== 'cancelled' && note.status !== 'completed');
   totalNotesAmount = dbNotes.length;
 } catch (err) {
-  // TODO error handling
-  // { error: 'Unauthorized', status: 401, message: 'Invalid OAuth token' }
+  // Twitch errors contain status and error properties
+  if(err.status && err.error) {
+    Astro.cookies.delete('twitch-token');
+    return Astro.redirect('/?error=twitch-error');
+  }
+  // TODO db error handling
   console.error(err);
 }
 ---
