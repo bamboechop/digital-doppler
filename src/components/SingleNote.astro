@@ -10,7 +10,8 @@ interface Props {
 }
 const { displayName, noteId, text, type, userId, ...rest } = Astro.props;
 
-const minLength = 3;
+const maxLength = import.meta.env.NOTE_MAX_LENGTH ?? 255;
+const minLength = import.meta.env.NOTE_MIN_LENGTH ?? 3;
 
 let id = 'new-note';
 if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
@@ -43,8 +44,9 @@ const Element = type === 'new' ? 'form' : 'div';
       { '': type === 'completed' },
     ]}
     disabled={type !== 'new'}
-    name="text"
+    maxlength={maxLength}
     minlength={minLength}
+    name="text"
     placeholder="Küche putzen, Einkaufen, ..."
     required
     rows="6">{text}</textarea>
@@ -91,7 +93,7 @@ const Element = type === 'new' ? 'form' : 'div';
   </footer>
 </Element>
 
-<script define:vars={{ id, minLength, type }}>
+<script define:vars={{ id, maxLength, minLength, type }}>
   if(type === 'new') {
     const footer = document.querySelector('footer');
     const saveButton = document.querySelector('.save-button');

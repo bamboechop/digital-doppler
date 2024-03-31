@@ -25,6 +25,16 @@ try {
     return new Response(JSON.stringify({ message: 'Wrong field format' }), { status: 400 });
   }
 
+  if(text.length > import.meta.env.MAX_NOTE_LENGTH) {
+    // TODO maybe show a user feedback
+    return new Response(JSON.stringify({ message: 'Text is too long' }), { status: 400 });
+  }
+
+  if(text.length < import.meta.env.MIN_NOTE_LENGTH) {
+    // TODO maybe show a user feedback
+    return new Response(JSON.stringify({ message: 'Text is too short' }), { status: 400 });
+  }
+
   note = await dbClient.notes.create({
     data: {
       date: new Date(),
