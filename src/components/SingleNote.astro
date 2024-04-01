@@ -5,11 +5,12 @@ interface Props {
   date?: Date;
   displayName: string;
   noteId: number;
+  showIsOfflineMessage?: boolean;
   text?: string;
   type: 'cancelled' | 'completed' | 'in-progress' | 'new';
   userId: string;
 }
-const { date, displayName, noteId, text, type, userId, ...rest } = Astro.props;
+const { date, displayName, noteId, showIsOfflineMessage, text, type, userId, ...rest } = Astro.props;
 
 const formattedDate = date ? new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',
@@ -50,7 +51,6 @@ const Element = type === 'new' ? 'form' : 'div';
     ]}>
     <textarea
       autocomplete="off"
-      autofocus={type === 'new'}
       class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
       class:list={[
         { 'overflow-hidden': ['cancelled', 'completed'].includes(type) },
@@ -64,8 +64,7 @@ const Element = type === 'new' ? 'form' : 'div';
       required
       rows="6">{text}</textarea>
     </label>
-  <footer
-    class="flex mt-auto px-2 pb-2"
+  <footer class="flex mt-auto px-2 pb-2"
     class:list={[{
       'flex-col items-end': type === 'new',
       'items-center justify-between': type === 'in-progress',
@@ -93,15 +92,20 @@ const Element = type === 'new' ? 'form' : 'div';
       </button>
     }
     {type === 'new' &&
-      <div class="flex h-4">
-        <span class="text-xs textarea-counter-info mr-1">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
+      <div class="flex items-end">
+        {showIsOfflineMessage && <span class="is-offline-info text-sm">bamboechop ist offline, bitte erstelle dein Todo wenn er wieder online ist</span>}
+        <div class="flex flex-col items-end">
+          <div class="flex h-4">
+            <span class="text-xs textarea-counter-info mr-1">Noch <span class="tabular-nums textarea-counter">{minLength}</span> Zeichen...</span>
+          </div>
+          <button
+            class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
+            disabled
+            type="submit">
+            Speichern
+          </button>
+        </div>
       </div>
-      <button
-        class="bg-stone-800 hover:bg-stone-950 disabled:bg-stone-500 transition-colors cursor-not-allowed px-4 py-2 text-sm text-white font-bold save-button"
-        disabled
-        type="submit">
-        Speichern
-      </button>
     }
   </footer>
 </Element>
@@ -114,7 +118,7 @@ const Element = type === 'new' ? 'form' : 'div';
     const textAreaCounterInfo = document.querySelector('.textarea-counter-info');
     const counter = document.querySelector('.textarea-counter');
 
-    textarea.addEventListener('input', () => {
+    function updateRemainingCharactersInfo() {
       const remainingAmount = minLength - textarea.value.length;
       if(remainingAmount > 0) {
         counter.textContent = remainingAmount.toString(10);
@@ -126,7 +130,9 @@ const Element = type === 'new' ? 'form' : 'div';
         footer.classList.add('justify-end');
         footer.classList.remove('justify-between');
       }
+    }
 
+    function updateSaveButtonState() {
       if(textarea.value.length < minLength) {
         saveButton.disabled = true;
         saveButton.classList.add('cursor-not-allowed');
@@ -134,24 +140,22 @@ const Element = type === 'new' ? 'form' : 'div';
         saveButton.disabled = false;
         saveButton.classList.remove('cursor-not-allowed');
       }
+    }
+
+    updateRemainingCharactersInfo();
+    updateSaveButtonState();
+
+    textarea.addEventListener('input', () => {
+      document.querySelector('.is-offline-info')?.remove();
+
+      updateRemainingCharactersInfo();
+      updateSaveButtonState();
     });
 
     textarea.addEventListener('keypress', (event) => {
       if(event.key === 'Enter' && textarea.value.split('\n').length >= 6) {
         event.preventDefault();
       }
-    })
-
-    saveButton.addEventListener('click', () => {
-      window.setTimeout(() => {
-        textarea.value = '';
-        saveButton.disabled = true;
-        saveButton.classList.add('cursor-not-allowed');
-        counter.textContent = '20';
-        textAreaCounterInfo.classList.remove('hidden');
-        footer.classList.remove('justify-end');
-        footer.classList.add('justify-between');
-      }, 0);
     });
   }
 

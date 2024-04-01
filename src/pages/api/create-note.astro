@@ -6,72 +6,83 @@ if(Astro.request.method !== 'POST') {
   return new Response('Method not allowed', { status: 405 });
 }
 
+const { isOnline } = Astro.locals;
+
 let amountOfOpenNotes = 0;
 let displayName;
 let note;
 let notes;
+let showOfflineError = false;
 
-try {
-  const formData = await Astro.request.formData();
-  const text = formData.get('text');
-  const user_id = formData.get('user_id');
-  displayName = formData.get('display_name');
+const formData = await Astro.request.formData();
 
-  if(!displayName || !text || !user_id) {
-    return new Response(JSON.stringify({ message: 'Missing required fields' }), { status: 400 });
+const text = formData.get('text');
+const user_id = formData.get('user_id');
+
+if(!isOnline) {
+  showOfflineError = true;
+} else {
+  try {
+    displayName = formData.get('display_name');
+
+    if(!displayName || !text || !user_id) {
+      return new Response(JSON.stringify({ message: 'Missing required fields' }), { status: 400 });
+    }
+
+    if(typeof displayName !== 'string' || typeof text !== 'string' || typeof user_id !== 'string') {
+      return new Response(JSON.stringify({ message: 'Wrong field format' }), { status: 400 });
+    }
+
+    if(text.length > import.meta.env.MAX_NOTE_LENGTH) {
+      // TODO maybe show a user feedback
+      return new Response(JSON.stringify({ message: 'Text is too long' }), { status: 400 });
+    }
+
+    if(text.length < import.meta.env.MIN_NOTE_LENGTH) {
+      // TODO maybe show a user feedback
+      return new Response(JSON.stringify({ message: 'Text is too short' }), { status: 400 });
+    }
+
+    note = await dbClient.notes.create({
+      data: {
+        date: new Date(),
+        text,
+        user_id: parseInt(user_id, 10),
+      },
+    });
+    notes = await dbClient.notes.findMany({
+      where: {
+        user_id: parseInt(user_id, 10),
+      },
+    });
+    amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+
+    await fetch(import.meta.env.BAMBBOT_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
+      },
+      body: JSON.stringify({
+        displayName,
+        status: 'in-progress',
+        text,
+      }),
+    });
+  } catch (err) {
+    console.log(err);
   }
-
-  if(typeof displayName !== 'string' || typeof text !== 'string' || typeof user_id !== 'string') {
-    return new Response(JSON.stringify({ message: 'Wrong field format' }), { status: 400 });
-  }
-
-  if(text.length > import.meta.env.MAX_NOTE_LENGTH) {
-    // TODO maybe show a user feedback
-    return new Response(JSON.stringify({ message: 'Text is too long' }), { status: 400 });
-  }
-
-  if(text.length < import.meta.env.MIN_NOTE_LENGTH) {
-    // TODO maybe show a user feedback
-    return new Response(JSON.stringify({ message: 'Text is too short' }), { status: 400 });
-  }
-
-  note = await dbClient.notes.create({
-    data: {
-      date: new Date(),
-      text,
-      user_id: parseInt(user_id, 10),
-    },
-  });
-  notes = await dbClient.notes.findMany({
-    where: {
-      user_id: parseInt(user_id, 10),
-    },
-  });
-  amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
-
-  await fetch(import.meta.env.BAMBBOT_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
-    },
-    body: JSON.stringify({
-      displayName,
-      status: 'in-progress',
-      text,
-    }),
-  });
-} catch (err) {
-  console.log(err);
 }
 ---
 
-<span id="open-notes-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
+{!showOfflineError && <span id="open-notes-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
 
 <span id="work-in-progress-todos-amount" hx-swap-oob="true">{amountOfOpenNotes}</span>
 
 <span id="total-todos-amount" hx-swap-oob="true">{notes.length}</span>
 
-<SingleNote id="new-note" hx-swap-oob={amountOfOpenNotes > 2 ? 'delete' : 'true'} displayName={displayName} type="new" userId={note.user_id} />
+<SingleNote hx-swap-oob={amountOfOpenNotes > 2 ? 'delete' : 'true'} displayName={displayName} type="new" userId={user_id} />
 
-<SingleNote date={note.date} displayName={displayName} noteId={note.note_id} text={note.text} type={note.status} userId={note.user_id} />
+<SingleNote date={note.date} displayName={displayName} noteId={note.note_id} text={note.text} type={note.status} userId={user_id} />}
+
+{showOfflineError && <SingleNote hx-swap-oob={amountOfOpenNotes > 2 ? 'delete' : 'true'} displayName={displayName} text={text} showIsOfflineMessage={true} type="new" userId={user_id} />}
