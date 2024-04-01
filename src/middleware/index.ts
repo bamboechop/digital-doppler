@@ -14,9 +14,17 @@ export const onRequest = defineMiddleware(async (context, next)  => {
     }
   }
 
+  /*
+   * potential refactor if the requests to Twitch get too much
+   *
+   * Right now every page load, every note creation / update calls Twitch asking for the online status
+   * Should Twitch tell us that this is too spammy we could implement a cache that stores the online status for a certain amount of time
+   * A quick way for this would be to set cookies for the online status and when the last check was made
+   * Only if the last check is older than a certain amount of time we would ask Twitch again
+   */
   let isOnline = false;
   try {
-    const response = await fetch('https://api.twitch.tv/helix/streams?user_login=bamboechop', {
+    const response = await fetch('https://api.twitch.tv/helix/streams?user_login=bamboechop&type=live', {
       headers: {
         Authorization: `Bearer ${token!.value}`,
         'Client-Id': import.meta.env.PUBLIC_TWITCH_CLIENT_ID,
