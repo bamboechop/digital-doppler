@@ -47,9 +47,12 @@ try {
     },
   });
   const dbNotes = await dbClient.notes.findMany({
+    orderBy: [
+      { note_id: 'asc' },
+    ],
     where: {
       user_id: userId
-    }
+    },
   });
   cancelledNotes = dbNotes.filter(note => note.status === 'cancelled');
   completedNotes = dbNotes.filter(note => note.status === 'completed');
