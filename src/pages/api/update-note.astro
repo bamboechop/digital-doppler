@@ -6,6 +6,8 @@ if(Astro.request.method !== 'PATCH') {
   return new Response('Method not allowed', { status: 405 });
 }
 
+const { isOnline } = Astro.locals;
+
 let amountOfCancelledNotes = 0;
 let amountOfClosedNotes = 0;
 let amountOfCompletedNotes = 0;
@@ -51,18 +53,20 @@ try {
   amountOfNotes = notes.length;
   amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
 
-  await fetch(import.meta.env.BAMBBOT_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
-    },
-    body: JSON.stringify({
-      displayName,
-      status,
-      text,
-    }),
-  });
+  if(isOnline) {
+    await fetch(import.meta.env.BAMBBOT_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
+      },
+      body: JSON.stringify({
+        displayName,
+        status,
+        text,
+      }),
+    });
+  }
 } catch (err) {
   console.error(err);
 }
