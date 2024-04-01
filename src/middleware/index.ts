@@ -34,6 +34,6 @@ export const onRequest = defineMiddleware(async (context, next)  => {
   } catch (err) {
     isOnline = false;
   }
-  context.locals.isOnline = isOnline;
+  context.locals.isOnline = !!import.meta.env.DEV_MODE || isOnline;
   return next();
 });

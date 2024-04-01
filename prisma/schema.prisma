@@ -11,7 +11,7 @@ model users {
   user_id         Int       @id
   user_name       String
   display_name    String
-  last_login_date DateTime? @db.Date
+  last_login_date DateTime? @default(now())
   notes           notes[]
 }
 
@@ -20,6 +20,6 @@ model notes {
   user_id Int?
   text    String
   status  String?   @default("in-progress")
-  date    DateTime? @db.Date
+  date    DateTime? @default(now())
   users   users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "notes_user_id_users_user_id_fk")
 }

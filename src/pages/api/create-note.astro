@@ -45,7 +45,6 @@ if(!isOnline) {
 
     note = await dbClient.notes.create({
       data: {
-        date: new Date(),
         text,
         user_id: parseInt(user_id, 10),
       },
