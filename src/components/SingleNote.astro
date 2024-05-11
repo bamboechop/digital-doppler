@@ -31,7 +31,7 @@ const formattedDate = date ? new Intl.DateTimeFormat('de-DE', {
   minute: '2-digit',
   second: '2-digit',
 }).format(date) : '';
-const maxLength = import.meta.env.NOTE_MAX_LENGTH ?? 255;
+const maxLength = import.meta.env.NOTE_MAX_LENGTH ?? 209;
 const minLength = import.meta.env.NOTE_MIN_LENGTH ?? 3;
 
 let id = 'new-note';
@@ -76,7 +76,7 @@ const Element = type === 'new' ? 'form' : 'div';
       name="text"
       placeholder="Küche putzen, Einkaufen, ..."
       required
-      rows="6">{text}</textarea>
+      rows="5">{text}</textarea>
     </label>
   {showNotOldEnoughError && <section class="bg-yellow-400 text-black p-2 mx-2 mb-2 rounded font-semibold text-xs">Hoppala, dieses Todo wurde gerade erst von dir erstellt. Du solltest zumindest {import.meta.env.TODO_MIN_DURATION_IN_MINUTES ?? 15} Minuten brauchen um es abzuschließen. Probiere es später erneut.</section>}
   <footer class="flex mt-auto px-2 pb-2"
@@ -91,7 +91,7 @@ const Element = type === 'new' ? 'form' : 'div';
         hx-select={`#note${noteId}`}
         hx-swap="outerHTML"
         hx-target={`#note${noteId}`}
-        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "cancelled", "text": "${text}", "user_id": "${userId}" }`}
+        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "cancelled", "user_id": "${userId}" }`}
         type="button">
         <XOctagon size="20" />
         Abbrechen
@@ -102,7 +102,7 @@ const Element = type === 'new' ? 'form' : 'div';
         hx-select={`#note${noteId}`}
         hx-swap="outerHTML"
         hx-target={`#note${noteId}`}
-        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "completed", "text": "${text}", "user_id": "${userId}" }`}
+        hx-vals={`{ "display_name": "${displayName}", "note_id": "${noteId}", "status": "completed", "user_id": "${userId}" }`}
         type="button">
         <CheckSquare size="20" />
         Erledigt

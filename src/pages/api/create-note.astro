@@ -56,14 +56,16 @@ if(!isOnline) {
     });
     amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
 
-    await fetch(`${import.meta.env.BAMBBOT_API_URL}/update`, {
+    await fetch(import.meta.env.BAMBBOT_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
       },
       body: JSON.stringify({
+        date: note.date,
         displayName,
+        id: note.note_id,
         status: 'in-progress',
         text,
       }),
