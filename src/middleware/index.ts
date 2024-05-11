@@ -1,11 +1,6 @@
 import { defineMiddleware } from 'astro/middleware';
 
 export const onRequest = defineMiddleware(async (context, next)  => {
-  if(context.url.pathname === '/stream-overlay') {
-    return next();
-  }
-  console.log('middleware stuff')
-
   const token = context.cookies.get('twitch-token');
   if(!token) {
     if(context.url.pathname === '/dashboard') {
