@@ -12,6 +12,7 @@ model users {
   user_name       String
   display_name    String
   last_login_date DateTime? @default(now())
+  avatar_url      String?
   notes           notes[]
 }
 

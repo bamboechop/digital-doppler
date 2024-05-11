@@ -63,7 +63,9 @@ if(!isOnline) {
         'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
       },
       body: JSON.stringify({
+        date: note.date,
         displayName,
+        id: note.note_id,
         status: 'in-progress',
         text,
       }),

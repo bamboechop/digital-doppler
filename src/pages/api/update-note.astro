@@ -23,14 +23,13 @@ try {
   displayName = formData.get('display_name');
   const note_id = formData.get('note_id');
   const status = formData.get('status');
-  const text = formData.get('text');
   const user_id = formData.get('user_id');
 
-  if(!displayName || !note_id || !status || !text || !user_id) {
+  if(!displayName || !note_id || !status || !user_id) {
     return new Response('Invalid request', { status: 400 });
   }
 
-  if(typeof displayName !== 'string' || typeof note_id !== 'string' || typeof status !== 'string' || typeof text !== 'string' || typeof user_id !== 'string') {
+  if(typeof displayName !== 'string' || typeof note_id !== 'string' || typeof status !== 'string' || typeof user_id !== 'string') {
     return new Response('Invalid request', { status: 400 });
   }
 
@@ -71,9 +70,11 @@ try {
         'Coworking-Secret': import.meta.env.BAMBBOT_API_SECRET,
       },
       body: JSON.stringify({
+        date: note.date,
         displayName,
+        id: note.note_id,
         status,
-        text,
+        text: note.text,
       }),
     });
   }
