@@ -34,12 +34,15 @@ try {
   image = data[0].profile_image_url;
   await dbClient.users.upsert({
     create: {
+      avatar_url: data[0].profile_image_url,
       display_name: displayName,
       last_login_date: new Date(),
       user_id: userId,
       user_name: data[0].login,
     },
     update: {
+      avatar_url: data[0].profile_image_url,
+      display_name: displayName,
       last_login_date: new Date(),
     },
     where: {
