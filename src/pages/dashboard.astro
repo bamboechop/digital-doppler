@@ -1,4 +1,5 @@
 ---
+import { UserRoundX } from 'lucide-astro';
 import UserInfo from '../components/UserInfo.astro';
 import Layout from '../layouts/Layout.astro';
 import Notes from '../components/Notes.astro';
@@ -14,6 +15,7 @@ let totalNotesAmount: number = 0;
 let displayName = null;
 let image = null;
 let userId = null;
+let banned = false;
 
 const token = Astro.cookies.get('twitch-token');
 
@@ -32,7 +34,7 @@ try {
   userId = parseInt(data[0].id, 10);
   displayName = data[0].display_name;
   image = data[0].profile_image_url;
-  await dbClient.users.upsert({
+  const user = await dbClient.users.upsert({
     create: {
       avatar_url: data[0].profile_image_url,
       display_name: displayName,
@@ -49,6 +51,9 @@ try {
       user_id: userId
     },
   });
+  if(user && user.banned) {
+    banned = true;
+  }
   const dbNotes = await dbClient.notes.findMany({
     orderBy: [
       { note_id: 'asc' },
@@ -57,9 +62,9 @@ try {
       user_id: userId
     },
   });
-  cancelledNotes = dbNotes.filter(note => note.status === 'cancelled');
+  cancelledNotes = dbNotes.filter(note => note.status === 'cancelled' || note.status === 'rejected');
   completedNotes = dbNotes.filter(note => note.status === 'completed');
-  openNotes = dbNotes.filter(note => note.status !== 'cancelled' && note.status !== 'completed');
+  openNotes = dbNotes.filter(note => note.status === 'approval-pending' || note.status === 'in-progress');
   totalNotesAmount = dbNotes.length;
 } catch (err) {
   // Twitch errors contain status and error properties
@@ -75,17 +80,25 @@ try {
 <Layout title="dashboard/coworking/bamboechop">
   <h1 class="sr-only">Dashboard</h1>
   <section class="gap-8 grid grid-cols-[240px_1fr] h-dvh w-full">
-    <div class="flex flex-col justify-between">
-      <UserInfo
-        notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
-        imageUrl={image}
-        name={displayName} />
-      <SmallDisplay />
-    </div>
-    <Notes
-      completedNotes={[...cancelledNotes, ...completedNotes]}
-      displayName={displayName}
-      openNotes={openNotes}
-      userId={userId} />
+      <div class="flex flex-col justify-between">
+        <UserInfo
+          notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
+          imageUrl={image}
+          name={displayName} />
+        <SmallDisplay />
+      </div>
+    {!banned ? (
+      <Notes
+        completedNotes={[...cancelledNotes, ...completedNotes]}
+        displayName={displayName}
+        openNotes={openNotes}
+        userId={userId} />
+    ) : (
+      <div class="bg-red-500 flex flex-col gap-2 items-center justify-center self-center justify-self-center rounded px-8 py-4 max-w-3xl text-center">
+        <UserRoundX size="64" />
+        Aufgrund der von dir erstellten Notizen wurdest du von bamboechop gesperrt.<br />
+        Falls du mehr über die Sperre wissen möchtest oder du bamboechop davon überzeugen möchtest, dass er dich Entsperrt, kontaktiere ihn gerne auf Discord.
+      </div>
+    )}
   </section>
 </Layout>

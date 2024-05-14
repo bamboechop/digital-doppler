@@ -34,13 +34,16 @@ try {
   }
 
   try {
-    const minDurationInMinutes = import.meta.env.TODO_MIN_DURATION_IN_MINUTES ?? 15;
+    const minDurationInMinutes = import.meta.env.TODO_MIN_DURATION_IN_MINUTES ?? 0;
     note = await dbClient.notes.update({
       data: {
         status,
       },
       where: {
         note_id: parseInt(note_id, 10),
+        status: {
+          notIn: ['rejected'],
+        },
         user_id: parseInt(user_id, 10),
         date: {
           lte: new Date(Date.now() - minDurationInMinutes * 60 * 1000),
@@ -49,7 +52,9 @@ try {
     });
   } catch (err) {
     note = await dbClient.notes.findUnique({ where: { note_id: parseInt(note_id, 10) } });
-    noteNotOldEnough = true;
+    if(note.status === 'in-progress') {
+      noteNotOldEnough = true;
+    }
   }
   notes = await dbClient.notes.findMany({
     where: {
@@ -80,6 +85,7 @@ try {
   }
 } catch (err) {
   console.error(err);
+  return new Response('Something went wrong', { status: 500 });
 }
 ---
 

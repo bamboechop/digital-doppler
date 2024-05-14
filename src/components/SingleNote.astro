@@ -8,7 +8,7 @@ interface Props {
   showIsOfflineMessage?: boolean;
   showNotOldEnoughError?: boolean;
   text?: string;
-  type: 'cancelled' | 'completed' | 'in-progress' | 'new';
+  type: 'cancelled' | 'completed' | 'in-progress' | 'new' | 'rejected' | 'approval-pending';
   userId: string;
 }
 const {
@@ -35,7 +35,7 @@ const maxLength = import.meta.env.NOTE_MAX_LENGTH ?? 209;
 const minLength = import.meta.env.NOTE_MIN_LENGTH ?? 3;
 
 let id = 'new-note';
-if(type === 'in-progress' || type === 'cancelled' || type === 'completed') {
+if(type === 'in-progress' || type === 'cancelled' || type === 'completed' || type === 'rejected' || type === 'approval-pending') {
   id = `note${noteId}`;
 }
 
@@ -44,9 +44,10 @@ const Element = type === 'new' ? 'form' : 'div';
 
 <Element
   class="bg-yellow-300 flex flex-col text-black max-w-96 w-full shadow-lg"
-  class:list={[{ 'absolute pointer-events-none': ['cancelled', 'completed'].includes(type) }]}
+  class:list={[{ 'absolute pointer-events-none': ['cancelled', 'completed', 'rejected'].includes(type) }]}
   id={id}
   {...rest}
+  hx-confirm="Bist du sicher das du dieses Todo erstellen möchtest?"
   hx-post={type === 'new' ? '/api/create-note' : undefined}
   hx-swap={type === 'new' ? 'beforeend' : undefined}
   hx-target={type === 'new' ? '#open-notes' : undefined}
@@ -54,8 +55,8 @@ const Element = type === 'new' ? 'form' : 'div';
   <header class="bg-yellow-400 flex items-center justify-between px-2 h-14">
     {formattedDate}
     {type === 'new' && 'Neues Todo erstellen'}
-    {type === 'in-progress' && <Square size="42" />}
-    {type === 'cancelled' && <XSquare class="note-icon-cancelled"  size="42" />}
+    {['approval-pending', 'in-progress'].includes(type) && <Square size="42" />}
+    {['cancelled', 'rejected'].includes(type) && <XSquare class="note-icon-cancelled"  size="42" />}
     {type === 'completed' && <CheckSquare2 class="note-icon-completed" size="42" />}
   </header>
   <label
@@ -67,8 +68,8 @@ const Element = type === 'new' ? 'form' : 'div';
       autocomplete="off"
       class="bg-transparent resize-none w-full outline-0 px-2.5 mt-2 single-note-textarea"
       class:list={[
-        { 'overflow-hidden': ['cancelled', 'completed'].includes(type) },
-        { 'line-through': type === 'cancelled' },
+        { 'overflow-hidden': ['cancelled', 'completed', 'rejected'].includes(type) },
+        { 'line-through': ['cancelled', 'rejected'].includes(type) },
       ]}
       disabled={type !== 'new'}
       maxlength={maxLength}
@@ -79,14 +80,16 @@ const Element = type === 'new' ? 'form' : 'div';
       rows="5">{text}</textarea>
     </label>
   {showNotOldEnoughError && <section class="bg-yellow-400 text-black p-2 mx-2 mb-2 rounded font-semibold text-xs">Hoppala, dieses Todo wurde gerade erst von dir erstellt. Du solltest zumindest {import.meta.env.TODO_MIN_DURATION_IN_MINUTES ?? 15} Minuten brauchen um es abzuschließen. Probiere es später erneut.</section>}
+  {type === 'approval-pending' && <p class="font-bold text-xs px-4 mb-2">bamboechop muss dieses Todo noch bestätigen. Bis er es bestätigt wird dieses Todo nicht im Stream sichtbar sein.</p>}
   <footer class="flex mt-auto px-2 pb-2"
     class:list={[{
       'flex-col items-end': type === 'new',
-      'items-center justify-between': type === 'in-progress',
+      'items-center justify-between': ['approval-pending', 'in-progress'].includes(type),
     }]}>
-    {type === 'in-progress' &&
+    {['approval-pending', 'in-progress'].includes(type) &&
       <button
         class="bg-red-500 hover:bg-red-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white cancel-button"
+        hx-confirm={`Bist du sicher das du das Todo "${text}" abbrechen möchtest?`}
         hx-patch="/api/update-note"
         hx-select={`#note${noteId}`}
         hx-swap="outerHTML"
@@ -98,6 +101,7 @@ const Element = type === 'new' ? 'form' : 'div';
       </button>
       <button
         class="bg-green-500 hover:bg-green-600 transition-colors flex gap-2 items-center px-2 py-2 text-sm text-white font-bold resolve-button"
+        hx-confirm={`Bist du sicher das du das Todo "${text}" erledigen möchtest?`}
         hx-patch="/api/update-note"
         hx-select={`#note${noteId}`}
         hx-swap="outerHTML"
@@ -124,6 +128,7 @@ const Element = type === 'new' ? 'form' : 'div';
         </div>
       </div>
     }
+    {type === 'rejected' && <p class="font-bold text-red-900 text-xs px-4">Dieses Todo wurde von bamboechop abgelehnt. Bitte erstelle es nicht erneut. Wenn du mehr wissen möchtest, wende dich per Discord an bamboechop.</p>}
   </footer>
 </Element>
 
@@ -176,7 +181,7 @@ const Element = type === 'new' ? 'form' : 'div';
     });
   }
 
-  if(['cancelled', 'completed'].includes(type)) {
+  if(['cancelled', 'completed', 'rejected'].includes(type)) {
     const container = document.querySelector('#completed-notes');
     const note = document.querySelector(`#${id}`);
     if(container) {

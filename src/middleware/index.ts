@@ -1,17 +1,15 @@
 import { defineMiddleware } from 'astro/middleware';
 
 export const onRequest = defineMiddleware(async (context, next)  => {
+  const authenticatedRoutes = ['/dashboard', '/admin/dashboard'];
+
   const token = context.cookies.get('twitch-token');
-  if(!token) {
-    if(context.url.pathname === '/dashboard') {
-      return context.redirect('/');
-    }
+  if(!token && authenticatedRoutes.includes(context.url.pathname)) {
+    return context.redirect('/');
   }
 
-  if(token) {
-    if(context.url.pathname === '/') {
-      return context.redirect('/dashboard');
-    }
+  if(token && context.url.pathname === '/') {
+    return context.redirect('/dashboard');
   }
 
   /*

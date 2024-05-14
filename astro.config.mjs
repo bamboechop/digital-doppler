@@ -12,6 +12,9 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone'
   }),
+  image: {
+    remotePatterns: [{ protocol: 'https' }],
+  },
   integrations: [tailwind()],
   output: 'server',
   server: {

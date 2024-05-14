@@ -13,6 +13,7 @@ model users {
   display_name    String
   last_login_date DateTime? @default(now())
   avatar_url      String?
+  banned          Boolean?  @default(false)
   notes           notes[]
 }
 
@@ -20,7 +21,7 @@ model notes {
   note_id Int       @id @default(autoincrement())
   user_id Int?
   text    String
-  status  String?   @default("in-progress")
+  status  String?   @default("approval-pending")
   date    DateTime? @default(now())
   users   users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "notes_user_id_users_user_id_fk")
 }
