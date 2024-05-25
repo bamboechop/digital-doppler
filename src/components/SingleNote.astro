@@ -155,12 +155,14 @@ const Element = type === 'new' ? 'form' : 'div';
     }
 
     function updateSaveButtonState() {
-      if(textarea.value.length < minLength) {
-        saveButton.disabled = true;
-        saveButton.classList.add('cursor-not-allowed');
-      } else {
-        saveButton.disabled = false;
-        saveButton.classList.remove('cursor-not-allowed');
+      if(saveButton) {
+        if(textarea.value.length < minLength) {
+          saveButton.disabled = true;
+          saveButton.classList.add('cursor-not-allowed');
+        } else {
+          saveButton.disabled = false;
+          saveButton.classList.remove('cursor-not-allowed');
+        }
       }
     }
 
