@@ -66,16 +66,20 @@ try {
 ---
 
 <AdminLayout class="admin-dashboard flex flex-col gap-3" title={title}>
-  <h1 class="text-2xl">{title}</h1>
+  <div>
+    <h1 class="text-2xl">{title}</h1>
+    <span class="text-xs">Nächster Refresh in <span class="refresh-timer">0</span> Sekunden</span>
+  </div>
   <hr class="border-gray-600 -ml-4" />
   <h2 class="bg-gray-700 decoration-1 px-2 text-xl underline underline-offset-2 w-max">Neue Todos von Zusehern</h2>
     <ul
       class="flex flex-wrap gap-2"
       id="approval-note-list">
       {userNotesToApprove.length > 0 ? (
-        userNotesToApprove.map(note => (
+        userNotesToApprove.map((note, index) => (
           <li
             class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+            data-date={note.date}
             id={`note${note.note_id}`}>
             <div class="flex items-center gap-2">
               <button
@@ -99,16 +103,19 @@ try {
             <span class="text-sm">{note.date}</span>
             <p class="mb-2">{note.text}</p>
             <div class="flex gap-2 justify-between mt-auto">
+              <div class="approve-button flex flex-col">
+                {index === 0 && <span class="auto-approve-timer pl-1 text-xs">00:00</span>}
+                <button
+                  class="bg-green-500 px-2 py-1 rounded text-white font-bold approve-button"
+                  hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" genehmigt werden soll?`}
+                  hx-patch="/api/admin/update-note"
+                  hx-swap="outerHTML"
+                  hx-target={`#note${note.note_id}`}
+                  hx-vals={`{ "display_name": "${note.users.display_name}", "note_id": "${note.note_id}", "status": "in-progress", "user_id": "${note.user_id}" }`}
+                  type="button">Genehmigen</button>
+              </div>
               <button
-                class="bg-green-500 px-2 py-1 rounded text-white font-bold"
-                hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" genehmigt werden soll?`}
-                hx-patch="/api/admin/update-note"
-                hx-swap="outerHTML"
-                hx-target={`#note${note.note_id}`}
-                hx-vals={`{ "display_name": "${note.users.display_name}", "note_id": "${note.note_id}", "status": "in-progress", "user_id": "${note.user_id}" }`}
-                type="button">Genehmigen</button>
-              <button
-                class="bg-red-500 px-2 py-1 rounded text-white font-bold"
+                class="bg-red-500 mt-auto px-2 py-1 rounded text-white font-bold"
                 hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" abgelehnt werden soll?`}
                 hx-patch="/api/admin/update-note"
                 hx-swap="outerHTML"
@@ -170,3 +177,58 @@ try {
     )}
     </ul>
 </AdminLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const refreshTimer = document.querySelector('.refresh-timer');
+    let refreshTime = 30;
+    window.setInterval(() => {
+      refreshTime -= 1;
+      refreshTimer.textContent = `${refreshTime}`;
+      if(refreshTime === 0) {
+        window.location.reload();
+      }
+    }, 1000);
+    refreshTimer.textContent = `${refreshTime}`;
+
+    const oldestNote = document.querySelector<HTMLLIElement>('#approval-note-list li');
+    if(oldestNote) {
+      const oldestNoteDateInSeconds = Math.floor(new Date(oldestNote.dataset.date).getTime() / 1000);
+      const autoApproveTimer = oldestNote.querySelector<HTMLSpanElement>('.auto-approve-timer');
+
+      function calculateRemainingTimeForAutoApprove() {
+        const nowInSeconds = Math.floor(new Date().getTime() / 1000);
+        const diffInSeconds = nowInSeconds - oldestNoteDateInSeconds;
+
+        // Calculate remaining seconds until now is five minutes in the past
+        let remainingSeconds = Math.max(0, 300 - diffInSeconds);
+
+        // Format remaining seconds in mm:ss format
+        let minutes = Math.floor(remainingSeconds / 60);
+        let seconds = remainingSeconds % 60;
+
+        autoApproveTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if(diffInSeconds > 300) {
+          window.clearInterval(intervalId);
+
+          /* override window.confirm to automatically approve the oldest note */
+          const originalConfirmFunction = window.confirm;
+          window.confirm = () => {
+            window.confirm = originalConfirmFunction;
+            return true;
+          }
+
+          oldestNote.querySelector<HTMLButtonElement>('.approve-button button').click();
+
+          // TODO either reload page after auto approve (lazy way) or refresh oldestNote variable and restart interval
+        }
+      }
+
+      const intervalId = window.setInterval(() => {
+        calculateRemainingTimeForAutoApprove();
+      }, 1000);
+      calculateRemainingTimeForAutoApprove();
+    }
+  });
+</script>
