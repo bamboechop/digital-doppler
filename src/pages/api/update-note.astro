@@ -65,7 +65,7 @@ try {
   amountOfClosedNotes = notes.filter((note) => ['cancelled', 'completed'].includes(note.status)).length;
   amountOfCompletedNotes = notes.filter((note) => note.status === 'completed').length;
   amountOfNotes = notes.length;
-  amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+  amountOfOpenNotes = notes.filter((note) => note.status === 'approval-pending' || note.status === 'in-progress').length;
 
   if(isOnline) {
     await fetch(import.meta.env.BAMBBOT_API_URL, {

@@ -58,7 +58,7 @@ if(!isOnline) {
         user_id: parseInt(user_id, 10),
       },
     });
-    amountOfOpenNotes = notes.filter((note) => note.status === 'in-progress').length;
+    amountOfOpenNotes = notes.filter((note) => note.status === 'approval-pending' || note.status === 'in-progress').length;
 
     if(isBamboechop) {
       await fetch(import.meta.env.BAMBBOT_API_URL, {
