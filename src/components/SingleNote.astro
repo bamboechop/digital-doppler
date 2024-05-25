@@ -144,11 +144,11 @@ const Element = type === 'new' ? 'form' : 'div';
       const remainingAmount = minLength - textarea.value.length;
       if(remainingAmount > 0) {
         counter.textContent = remainingAmount.toString(10);
-        textAreaCounterInfo.classList.remove('hidden');
+        textAreaCounterInfo?.classList.remove('hidden');
         footer.classList.remove('justify-end');
         footer.classList.add('justify-between');
       } else {
-        textAreaCounterInfo.classList.add('hidden');
+        textAreaCounterInfo?.classList.add('hidden');
         footer.classList.add('justify-end');
         footer.classList.remove('justify-between');
       }
