@@ -126,16 +126,17 @@ try {
   hx-swap-oob="true"
   id="approval-note-list">
   {userNotesToApprove.length > 0 ? (
-    userNotesToApprove.map(note => (
+    userNotesToApprove.map((note, index) => (
       <li
         class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+        data-date={note.date}
         id={`note${note.note_id}`}>
         <div class="flex items-center gap-2">
           <button
             class="bg-gray-900 p-2 rounded"
             hx-confirm={`Bist du sicher das ${note.users.display_name} gebannt werden soll?`}
             hx-put="/api/admin/ban-user"
-            hx-vals={`{ "display_name": "${note.users.display_name}", "user_id": "${note.user_id}" }`}
+            hx-vals={`{ "user_id": "${note.user_id}" }`}
             tabindex="-1"
             title={`${note.users.display_name} bannen`}
             type="button">
@@ -152,16 +153,19 @@ try {
         <span class="text-sm">{note.date}</span>
         <p class="mb-2">{note.text}</p>
         <div class="flex gap-2 justify-between mt-auto">
+          <div class="approve-button flex flex-col">
+            {index === 0 && <span class="auto-approve-timer pl-1 text-xs">00:00</span>}
+            <button
+              class="bg-green-500 px-2 py-1 rounded text-white font-bold approve-button"
+              hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" genehmigt werden soll?`}
+              hx-patch="/api/admin/update-note"
+              hx-swap="outerHTML"
+              hx-target={`#note${note.note_id}`}
+              hx-vals={`{ "display_name": "${note.users.display_name}", "note_id": "${note.note_id}", "status": "in-progress", "user_id": "${note.user_id}" }`}
+              type="button">Genehmigen</button>
+          </div>
           <button
-            class="bg-green-500 px-2 py-1 rounded text-white font-bold"
-            hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" genehmigt werden soll?`}
-            hx-patch="/api/admin/update-note"
-            hx-swap="outerHTML"
-            hx-target={`#note${note.note_id}`}
-            hx-vals={`{ "display_name": "${note.users.display_name}", "note_id": "${note.note_id}", "status": "in-progress", "user_id": "${note.user_id}" }`}
-            type="button">Genehmigen</button>
-          <button
-            class="bg-red-500 px-2 py-1 rounded text-white font-bold"
+            class="bg-red-500 mt-auto px-2 py-1 rounded text-white font-bold"
             hx-confirm={`Bist du sicher das das Todo von ${note.users.display_name} mit dem Text "${note.text}" abgelehnt werden soll?`}
             hx-patch="/api/admin/update-note"
             hx-swap="outerHTML"
