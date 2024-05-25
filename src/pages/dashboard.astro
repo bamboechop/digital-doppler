@@ -1,5 +1,5 @@
 ---
-import { UserRoundX } from 'lucide-astro';
+import { RotateCw, UserRoundX } from 'lucide-astro';
 import UserInfo from '../components/UserInfo.astro';
 import Layout from '../layouts/Layout.astro';
 import Notes from '../components/Notes.astro';
@@ -85,6 +85,13 @@ try {
           notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
           imageUrl={image}
           name={displayName} />
+        <button
+          class="flex gap-2 items-center rounded px-4 py-2 text-sm"
+          type="button"
+          onclick="window.location.reload()">
+          <RotateCw />
+          Aktualisieren
+        </button>
         <SmallDisplay />
       </div>
     {!banned ? (
