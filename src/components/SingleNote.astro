@@ -133,7 +133,8 @@ const Element = type === 'new' ? 'form' : 'div';
 </Element>
 
 <script define:vars={{ id, maxLength, minLength, type }}>
-  if(type === 'new') {
+  const amountOfOpenNotes = parseInt(document.querySelector('#open-notes-amount')?.innerText ?? 0, 10);
+  if(type === 'new' && amountOfOpenNotes < 3) {
     const footer = document.querySelector('footer');
     const saveButton = document.querySelector('.save-button');
     const textarea = document.querySelector('textarea');
