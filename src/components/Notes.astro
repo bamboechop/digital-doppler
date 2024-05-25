@@ -45,7 +45,7 @@ const { completedNotes, displayName, openNotes, userId } = Astro.props;
       Abgeschlossene Todos (<span id="closed-notes-amount">{completedNotes.length}</span>)
     </header>
     <section
-      class="cursor-zoom-in flex flex-wrap gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 h-full px-6 relative"
+      class="cursor-zoom-in flex flex-wrap gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 h-full px-6 relative"
       id="completed-notes"
       title="Alle Todos ansehen">
       {completedNotes.map((note) => (
@@ -64,62 +64,87 @@ const { completedNotes, displayName, openNotes, userId } = Astro.props;
 </section>
 
 <script>
+  function closeDoneNotes(sectionStyle, notes) {
+    completedNotesSection.classList.remove('completed-notes-section--open');
+    completedNotesSection.title = 'Alle Todos ansehen';
+
+    sectionStyle.cursor = '';
+    sectionStyle.display = '';
+    sectionStyle.gap = '';
+    sectionStyle.gridAutoRows = '';
+    sectionStyle.height = '';
+    sectionStyle.inset = '';
+    sectionStyle.justifyItems = '';
+    sectionStyle.overflow = '';
+    sectionStyle.padding = '';
+    sectionStyle.position = '';
+    sectionStyle.zIndex = '';
+
+    completedNotesContainer.classList.add('hidden');
+    completedNotesSection.title = 'Alle Todos ansehen';
+
+    notes.forEach((note: HTMLElement) => {
+      note.querySelector('textarea').style.overflow = 'hidden';
+      note.style.cursor = '';
+      note.style.pointerEvents = '';
+      note.style.position = 'absolute';
+      note.style.transform = `rotate(${Math.floor(Math.random() * 21) - 10}deg)`;
+    });
+  }
+
+  function openDoneNotes(sectionStyle, notes) {
+    completedNotesSection.classList.add('completed-notes-section--open');
+    completedNotesSection.title = '';
+
+    sectionStyle.cursor = 'zoom-out';
+    sectionStyle.display = 'grid';
+    sectionStyle.justifyItems = 'center';
+    sectionStyle.gap = '1rem';
+    sectionStyle.gridAutoRows = 'min-content';
+    sectionStyle.height = '100dvh';
+    sectionStyle.inset = '0';
+    sectionStyle.overflow = 'auto';
+    sectionStyle.padding = '32px 64px';
+    sectionStyle.position = 'fixed';
+    sectionStyle.zIndex = '1';
+
+    completedNotesContainer.classList.remove('hidden');
+    completedNotesContainer.title = 'Alle Todos schließen';
+
+    window.setTimeout(() => {
+      completedNotesSection.scrollTo({ behavior: 'instant', top: completedNotesContainer.scrollHeight });
+    }, 0);
+
+    notes.forEach((note: HTMLElement) => {
+      note.querySelector('textarea').style.overflow = 'auto';
+      note.style.cursor = 'default';
+      note.style.pointerEvents = 'all';
+      note.style.position = 'static';
+      note.style.transform = 'none';
+    });
+  }
+
+  function handleEscKey(event) {
+    if(event.key === 'Escape') {
+      document.removeEventListener('keypress', handleEscKey);
+
+      const sectionStyle = completedNotesSection.style;
+      const notes = completedNotesSection.querySelectorAll('[id^=note]');
+
+      closeDoneNotes(sectionStyle, notes);
+    }
+  }
+
   function handleClick() {
     const sectionStyle = completedNotesSection.style;
     const notes = completedNotesSection.querySelectorAll('[id^=note]');
 
+    document.addEventListener('keydown', handleEscKey);
+
     if(completedNotesSection.classList.contains('completed-notes-section--open')) {
-      completedNotesSection.classList.remove('completed-notes-section--open');
-      completedNotesSection.title = 'Alle Todos ansehen';
-
-      sectionStyle.cursor = '';
-      sectionStyle.display = '';
-      sectionStyle.gap = '';
-      sectionStyle.gridAutoRows = '';
-      sectionStyle.height = '';
-      sectionStyle.inset = '';
-      sectionStyle.justifyItems = '';
-      sectionStyle.overflow = '';
-      sectionStyle.padding = '';
-      sectionStyle.position = '';
-      sectionStyle.zIndex = '';
-
-      completedNotesContainer.classList.add('hidden');
-      completedNotesSection.title = 'Alle Todos ansehen';
-
-      notes.forEach((note: HTMLElement) => {
-        note.querySelector('textarea').style.overflow = 'hidden';
-        note.style.cursor = '';
-        note.style.pointerEvents = '';
-        note.style.position = 'absolute';
-        note.style.transform = `rotate(${Math.floor(Math.random() * 21) - 10}deg)`;
-      });
+      closeDoneNotes(sectionStyle, notes);
     } else {
-      completedNotesSection.classList.add('completed-notes-section--open');
-      completedNotesSection.title = '';
-
-      sectionStyle.cursor = 'zoom-out';
-      sectionStyle.display = 'grid';
-      sectionStyle.justifyItems = 'center';
-      sectionStyle.gap = '1rem';
-      sectionStyle.gridAutoRows = 'min-content';
-      sectionStyle.height = '100dvh';
-      sectionStyle.inset = '0';
-      sectionStyle.overflow = 'auto';
-      sectionStyle.padding = '32px 64px';
-      sectionStyle.position = 'fixed';
-      sectionStyle.zIndex = '1';
-
-      completedNotesContainer.classList.remove('hidden');
-      completedNotesContainer.title = 'Alle Todos schließen';
-
-      notes.forEach((note: HTMLElement) => {
-        note.querySelector('textarea').style.overflow = 'auto';
-        note.style.cursor = 'default';
-        note.style.pointerEvents = 'all';
-        note.style.position = 'static';
-        note.style.transform = 'none';
-      });
+      openDoneNotes(sectionStyle, notes);
     }
   }
 
