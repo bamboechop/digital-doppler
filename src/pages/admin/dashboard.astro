@@ -67,18 +67,18 @@ try {
 
 <AdminLayout class="admin-dashboard flex flex-col gap-3" title={title}>
   <div>
-    <h1 class="text-2xl">{title}</h1>
+    <h1 class="text-2xl break-words">{title}</h1>
     <span class="text-xs">Nächster Refresh in <span class="refresh-timer">0</span> Sekunden</span>
   </div>
   <hr class="border-gray-600 -ml-4" />
-  <h2 class="bg-gray-700 decoration-1 px-2 text-xl underline underline-offset-2 w-max">Neue Todos von Zusehern</h2>
+  <h2 class="bg-gray-700 decoration-1 px-2 text-xl underline underline-offset-2 w-max break-words">Neue Todos von Zusehern</h2>
     <ul
-      class="flex flex-wrap gap-2"
+      class="flex flex-nowrap gap-2 overflow-x-auto"
       id="approval-note-list">
       {userNotesToApprove.length > 0 ? (
         userNotesToApprove.map((note, index) => (
           <li
-            class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+            class="bg-gray-800 flex flex-col flex-shrink-0 gap-2 p-2 w-80 rounded"
             data-date={note.date}
             id={`note${note.note_id}`}>
             <div class="flex items-center gap-2">
@@ -130,14 +130,14 @@ try {
       )}
     </ul>
   <hr class="border-gray-600 -ml-4" />
-  <h2 class="bg-gray-700 decoration-1 px-2 text-xl underline underline-offset-2 w-max">Aktive Todos von Zusehern</h2>
+  <h2 class="bg-gray-700 decoration-1 px-2 text-xl underline underline-offset-2 w-max break-words">Aktive Todos von Zusehern</h2>
   <ul
-    class="flex flex-wrap gap-2"
+    class="flex flex-nowrap gap-2 overflow-x-auto"
     id="active-note-list">
     {userNotesInProgress.length > 0 ? (
       userNotesInProgress.map(note => (
         <li
-          class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+          class="bg-gray-800 flex flex-col flex-shrink-0 gap-2 p-2 w-80 rounded"
           id={`note${note.note_id}`}>
           <div class="flex items-center gap-2">
             <button

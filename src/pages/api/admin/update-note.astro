@@ -122,13 +122,13 @@ try {
 ---
 
 <ul
-  class="flex flex-wrap gap-2"
+  class="flex flex-nowrap gap-2 overflow-x-auto"
   hx-swap-oob="true"
   id="approval-note-list">
   {userNotesToApprove.length > 0 ? (
     userNotesToApprove.map((note, index) => (
       <li
-        class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+        class="bg-gray-800 flex flex-col flex-shrink-0 gap-2 p-2 w-80 rounded"
         data-date={note.date}
         id={`note${note.note_id}`}>
         <div class="flex items-center gap-2">
@@ -181,13 +181,13 @@ try {
 </ul>
 
 <ul
-  class="flex flex-wrap gap-2"
+  class="flex flex-nowrap gap-2 overflow-x-auto"
   hx-swap-oob="true"
   id="active-note-list">
   {userNotesInProgress.length > 0 ? (
     userNotesInProgress.map(note => (
       <li
-        class="bg-gray-800 flex flex-col gap-2 p-2 max-w-80 w-full rounded"
+        class="bg-gray-800 flex flex-col flex-shrink-0 gap-2 p-2 w-80 rounded"
         id={`note${note.note_id}`}>
         <div class="flex items-center gap-2">
           <button
