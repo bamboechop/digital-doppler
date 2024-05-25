@@ -179,6 +179,37 @@ try {
 </AdminLayout>
 
 <script>
+  let intervalId;
+
+  function calculateRemainingTimeForAutoApprove(oldestNote) {
+    const oldestNoteDateInSeconds = Math.floor(new Date(oldestNote.dataset.date).getTime() / 1000);
+    const nowInSeconds = Math.floor(new Date().getTime() / 1000);
+    const diffInSeconds = nowInSeconds - oldestNoteDateInSeconds;
+
+    // Calculate remaining seconds until now is five minutes in the past
+    let remainingSeconds = Math.max(0, 300 - diffInSeconds);
+
+    // Format remaining seconds in mm:ss format
+    let minutes = Math.floor(remainingSeconds / 60);
+    let seconds = remainingSeconds % 60;
+
+    const autoApproveTimer = oldestNote.querySelector<HTMLSpanElement>('.auto-approve-timer');
+    autoApproveTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    if(diffInSeconds >= 300) {
+      window.clearInterval(intervalId);
+
+      /* override window.confirm to automatically approve the oldest note */
+      const originalConfirmFunction = window.confirm;
+      window.confirm = () => {
+        window.confirm = originalConfirmFunction;
+        return true;
+      }
+
+      oldestNote.querySelector<HTMLButtonElement>('.approve-button button').click();
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const refreshTimer = document.querySelector('.refresh-timer');
     let refreshTime = 30;
@@ -191,44 +222,26 @@ try {
     }, 1000);
     refreshTimer.textContent = `${refreshTime}`;
 
-    const oldestNote = document.querySelector<HTMLLIElement>('#approval-note-list li');
+    const oldestNote = document.querySelector<HTMLLIElement>('#approval-note-list li[id^="note"]');
     if(oldestNote) {
-      const oldestNoteDateInSeconds = Math.floor(new Date(oldestNote.dataset.date).getTime() / 1000);
-      const autoApproveTimer = oldestNote.querySelector<HTMLSpanElement>('.auto-approve-timer');
-
-      function calculateRemainingTimeForAutoApprove() {
-        const nowInSeconds = Math.floor(new Date().getTime() / 1000);
-        const diffInSeconds = nowInSeconds - oldestNoteDateInSeconds;
-
-        // Calculate remaining seconds until now is five minutes in the past
-        let remainingSeconds = Math.max(0, 300 - diffInSeconds);
-
-        // Format remaining seconds in mm:ss format
-        let minutes = Math.floor(remainingSeconds / 60);
-        let seconds = remainingSeconds % 60;
-
-        autoApproveTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        if(diffInSeconds > 300) {
-          window.clearInterval(intervalId);
-
-          /* override window.confirm to automatically approve the oldest note */
-          const originalConfirmFunction = window.confirm;
-          window.confirm = () => {
-            window.confirm = originalConfirmFunction;
-            return true;
-          }
-
-          oldestNote.querySelector<HTMLButtonElement>('.approve-button button').click();
-
-          // TODO either reload page after auto approve (lazy way) or refresh oldestNote variable and restart interval
-        }
-      }
-
-      const intervalId = window.setInterval(() => {
-        calculateRemainingTimeForAutoApprove();
+      window.clearInterval(intervalId);
+      intervalId = window.setInterval(() => {
+        calculateRemainingTimeForAutoApprove(oldestNote);
       }, 1000);
-      calculateRemainingTimeForAutoApprove();
+      calculateRemainingTimeForAutoApprove(oldestNote);
+    }
+  });
+
+  document.body.addEventListener('htmx:afterSwap', (event) => {
+    if (event.srcElement.id === 'approval-note-list') {
+      const oldestNote = document.querySelector<HTMLLIElement>('#approval-note-list li[id^="note"]');
+      if(oldestNote) {
+        window.clearInterval(intervalId);
+        intervalId = window.setInterval(() => {
+          calculateRemainingTimeForAutoApprove(oldestNote);
+        }, 1000);
+        calculateRemainingTimeForAutoApprove(oldestNote);
+      }
     }
   });
 </script>
