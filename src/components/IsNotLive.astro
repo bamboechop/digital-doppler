@@ -1,6 +1,16 @@
-<div class="flex gap-2 items-center text-sm">
+---
+import { ExternalLink } from 'lucide-astro';
+---
+
+<a
+  class="flex gap-2 items-center text-sm text-gray-400 hover:text-gray-300"
+  href="https://twitch.tv/bamboechop"
+  target="_blank">
   <div class="relative h-4 w-4">
     <div class="relative inline-flex rounded-full h-full w-full bg-gray-500"></div>
   </div>
-  <span class="text-gray-400">bamboechop ist offline</span>
-</div>
+  <div class="flex flex-row items-center whitespace-pre">
+    <span class="underline underline-offset-2">bamboechop</span> ist offline
+    <ExternalLink class="ml-1" size="12" />
+  </div>
+</a>
