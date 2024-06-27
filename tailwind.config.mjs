@@ -9,7 +9,12 @@ export default {
 				'background-fabric': 'url(\'/bg/black-linen.png\')',
 			},
 			dropShadow: {
+				'logo': ['0 4px 3px rgba(0, 0, 0, .4)', '0 2px 2px rgba(0, 0, 0, .39)'],
 				'stationery': '4px 4px 4px rgba(0, 0, 0, .5)',
+			},
+			screens: {
+				'xs': '375px',
+				'md': '640px',
 			},
 		},
 	},

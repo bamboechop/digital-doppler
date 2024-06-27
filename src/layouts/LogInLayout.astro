@@ -1,9 +1,13 @@
 ---
+import { Image } from 'astro:assets';
+import { AstroFont } from 'astro-font';
+
 interface Props {
+  class?: string;
   title: string;
 }
 
-const { title } = Astro.props;
+const { class: className, title, ...rest } = Astro.props;
 
 let backgroundImageUrl = Astro.cookies.get('background-image-url')?.value ?? '';
 
@@ -23,10 +27,60 @@ if(!Astro.url.searchParams.has('error')) {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <AstroFont config={[
+      {
+        name: 'Caveat',
+        src: [
+          { style: 'regular', weight: '400', path: './public/fonts/Caveat/Caveat-Regular.ttf' },
+          { style: 'regular', weight: '600', path: './public/fonts/Caveat/Caveat-SemiBold.ttf' },
+        ],
+        preload: true,
+        display: 'swap',
+        fallback: 'sans-serif',
+      },
+    ]} />
   </head>
   <body class="bg-[#230f01]">
-    <main class="flex items-center justify-center min-h-dvh text-white text-xl">
+    <main
+      class="flex flex-col gap-4 items-center justify-center min-h-dvh p-8 text-white text-xl relative overflow-hidden"
+      class:list={[className]} {...rest}>
       <slot />
+      <Image
+        alt=""
+        class="absolute hidden md:block top-[310px] left-[25%] -rotate-[-29deg] drop-shadow-stationery"
+        height="425px"
+        src="/stationeries/marker-pink.png"
+        width="107px" />
+      <Image
+        alt=""
+        class="absolute hidden md:block bottom-[-50px] left-[-390px] -rotate-[37deg] drop-shadow-stationery"
+        height="32px"
+        src="/stationeries/pencil-red.png"
+        width="749px" />
+      <Image
+        alt=""
+        class="absolute hidden md:block bottom-[40px] right-[-240px] -rotate-[172deg] scale-x-100 -scale-y-100 drop-shadow-stationery"
+        height="32px"
+        src="/stationeries/pencil-orange.png"
+        width="749px" />
+      <Image
+        alt=""
+        class="absolute hidden md:block top-[32px] left-[-515px] rotate-[27deg] -scale-y-100 drop-shadow-stationery"
+        height="32px"
+        src="/stationeries/pencil-silver.png"
+        width="756px" />
+      <Image
+        alt=""
+        class="absolute hidden md:block top-[275px] right-[-435px] -scale-x-100 -scale-y-100 rotate-[40deg] drop-shadow-stationery"
+        height="32px"
+        src="/stationeries/pencil-green.png"
+        width="756px" />
+      <Image
+        alt=""
+        class="absolute hidden md:block top-[365px] right-[-485px] scale-x-100 -scale-y-100 rotate-[40deg] drop-shadow-stationery"
+        height="32px"
+        src="/stationeries/pencil-blue.png"
+        width="751px" />
     </main>
   </body>
 </html>
