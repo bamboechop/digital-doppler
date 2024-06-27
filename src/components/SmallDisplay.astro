@@ -4,9 +4,9 @@ import IsLive from './IsLive.astro';
 const { isOnline } = Astro.locals;
 ---
 
-<div class="bg-black mt-auto pt-[10px] pr-[10px] rounded-tr-[18px] max-w-max relative overflow-hidden
+<div class="bg-black mt-auto pt-[10px] pr-[10px] rounded-tr-[18px] max-w-max fixed bottom-0 overflow-hidden
 after:content-[' '] after:absolute after:bg-white after:w-20 after:h-28 after:-top-10 after:left-0 after:rotate-[30deg] after:z-10 after:opacity-15">
-  <div class="bg-gray-900 px-4 py-2 rounded-tr-lg">
+  <div class="bg-gray-900 p-2 rounded-tr-lg">
     {!isOnline && <IsNotLive />}
     {isOnline && <IsLive />}
   </div>

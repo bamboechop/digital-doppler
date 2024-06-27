@@ -80,13 +80,14 @@ try {
 <Layout title="dashboard/coworking/bamboechop">
   <h1 class="sr-only">Dashboard</h1>
   <section class="gap-8 grid grid-cols-[240px_1fr] h-dvh w-full">
-      <div class="flex flex-col justify-between">
+      <div class="flex flex-col">
         <UserInfo
+          class="fixed top-0"
           notesAmount={{ cancelled: cancelledNotes.length, completed: completedNotes.length, inProgress: openNotes.length, total: totalNotesAmount }}
           imageUrl={image}
           name={displayName} />
         <button
-          class="flex gap-2 items-center rounded px-4 py-2 text-sm w-max"
+          class="flex gap-2 items-center rounded px-4 py-2 text-sm w-max fixed top-[275px]"
           type="button"
           onclick="window.location.reload()">
           <RotateCw />
