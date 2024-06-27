@@ -40,7 +40,7 @@ const { completedNotes, displayName, openNotes, userId } = Astro.props;
     height="32px"
     src="/stationeries/pencil-gray.png"
     width="666px" />
-  <section class="[border-image:url('/bg/border.png');] [border-image-slice:255!important;] single-note-box bg-lime-700 bg-background-fabric border-[24px] border-amber-950 rounded-2xl flex flex-col gap-4 pb-4 basis-full shadow-2xl">
+   <section class="[border-image:url('/bg/border.png');] [border-image-slice:255!important;] single-note-box bg-lime-700 bg-background-fabric border-[24px] border-amber-950 rounded-2xl flex flex-col gap-4 pb-4 basis-full shadow-2xl min-h-[500px]">
     <header class="bg-yellow-900 bg-background-pattern max-w-max p-2 font-bold">
       Abgeschlossene Todos (<span id="closed-notes-amount">{completedNotes.length}</span>)
     </header>
