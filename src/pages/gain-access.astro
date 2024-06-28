@@ -1,0 +1,71 @@
+---
+import { Image } from 'astro:assets';
+import GainAccessLayout from '../layouts/GainAccessLayout.astro';
+import SingleNote from '../components/SingleNote.astro';
+import { ExternalLink } from 'lucide-astro';
+
+const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
+---
+
+<GainAccessLayout>
+  <h1 class="sr-only">Zutritt erlangen</h1>
+  <section class="flex flex-row gap-8">
+    <div class="flex flex-col gap-6 items-center">
+      <SingleNote text="Du bist hier gelandet da du nicht alle Kriterien erfüllst um mit bamboechop und seinen Zusehern zu teilen woran du heute arbeitest. Aber keine Sorge, die Kriterien sind schnell erfüllt. Lies einfach weiter." />
+      <article class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl p-10 pt-5 shadow-lg font-sans relative z-[2] max-w-[417px]">
+        <h2 class="text-center text-xl font-semibold">Schritt 1</h2>
+        <h3 class="text-center text-2xl font-extrabold -mt-4">Folge <span class="highlight">bamboechop</span></h3>
+        <Image
+          alt="Folge bamboechop auf Twitch"
+          height="117"
+          loading="eager"
+          src="/get-access/step-1.jpg"
+          width="511" />
+        <p class="text-base">Damit du mit bamboechop und seinen Zusehern mitarbeiten kannst ist es notwendig das du <a class="hover:text-gray-300 underline underline-offset-2" href="https://twitch.tv/bamboechop" target="_blank">bamboechop auf Twitch</a><ExternalLink class="inline mb-1 ml-1" size="12" /> folgst. Drücke hierfür einfach auf den "Folgen" Button direkt unter dem Stream. Natürlich völlig kostenlos! 😉</p>
+        <hr class="border-gray-600 w-full -my-2" />
+        <p class="text-sm">Alternativ kannst du auch ein Abonnement bei bamboechop abschließen und ihn hiermit zusätzlich unterstützen. Dies ist jedoch in keinster Weise erforderlich und du solltest ein Abonnement nur in Betracht ziehen wenn du es dir aktuell leisten kannst. Coworking mit bamboechop und seinen Zusehern ist nicht davon abhängig, ob du die finanziellen Mittel für ein Abonnement besitzt.</p>
+      </article>
+    </div>
+    <article class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl p-10 pt-5 shadow-lg font-sans relative z-[2] max-w-[417px]">
+      <h2 class="text-center text-xl font-semibold">Schritt 2</h2>
+      <h3 class="text-center text-2xl font-extrabold -mt-4">Löse die Coworking Kanalpunkte Belohnung ein</h3>
+      <Image
+        alt="Löse die Coworking Kanalpunkte Belohnung ein"
+        height="431"
+        loading="eager"
+        src="/get-access/step-2.jpg"
+        width="337" />
+      <p class="text-base">Nachdem du dem Kanal gefolgt bist bleib einfach für ein paar Minuten dabei, erfreu dich am gezeigten und genieß die Musik. Sobald du 500 Kanalpunkte verdient hast kannst du die Coworking Belohnung einlösen. Klicke hierzu unter dem Chat auf den "Power-ups & Belohnungen" Button, finde die Coworking Belohnung und löse diese ein.</p>
+    </article>
+    <div class="flex flex-col gap-16 items-center">
+      <article class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl p-10 pt-5 shadow-lg font-sans relative z-[2] max-w-[417px]">
+        <h2 class="text-center text-xl font-semibold">Schritt 3</h2>
+        <h3 class="text-center text-2xl font-extrabold -mt-4">Geh zum Coworking Dashboard</h3>
+        <a
+          class="bg-[#aacc00] w-max text-black font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
+          href={link}>Zum Coworking Dashboard</a>
+        <p class="text-base">Viel Spaß und lass uns wissen woran du heute arbeitest!</p>
+      </article>
+      <Image
+        alt="Coworking with bamboechop logo"
+        class="shape-round -rotate-12 drop-shadow-logo z-[2]"
+        height="220"
+        loading="eager"
+        src="/logo.png"
+        width="220" />
+    </div>
+  </section>
+</GainAccessLayout>
+
+<style lang="scss">
+  .highlight {
+    --accent: 170, 204, 0;
+    --accent-light: 239, 250, 204;
+    --accent-dark: 78, 101, 10;
+    background-image: linear-gradient( 45deg, rgb(var(--accent)), rgb(var(--accent-light)) 15%, white 20%);
+    background-position: 0;
+    background-size: 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+</style>

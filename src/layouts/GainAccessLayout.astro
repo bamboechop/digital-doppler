@@ -1,0 +1,77 @@
+---
+import { Image } from 'astro:assets';
+import { AstroFont } from 'astro-font';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const backgroundImageUrl = Astro.cookies.has('background-image-url') ? Astro.cookies.get('background-image-url').value : '/bg/1.png';
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Astro description" />
+  <meta name="viewport" content="width=device-width" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+  <title>{title}</title>
+  <AstroFont config={[
+    {
+      name: 'Caveat',
+      src: [
+        { style: 'regular', weight: '400', path: './public/fonts/Caveat/Caveat-Regular.ttf' },
+        { style: 'regular', weight: '600', path: './public/fonts/Caveat/Caveat-SemiBold.ttf' },
+      ],
+      preload: true,
+      display: 'swap',
+      fallback: 'sans-serif',
+    },
+  ]} />
+</head>
+<body class="bg-[#230f01] bg-background-pattern flex items-center justify-center min-h-dvh">
+<main class="flex flex-col items-center justify-center min-h-dvh w-full p-8 text-white text-lg gap-4 relative overflow-hidden">
+  <slot />
+  <Image
+    alt=""
+    class="absolute hidden md:block bottom-[-50px] left-[-390px] -rotate-[37deg] drop-shadow-stationery"
+    height="32px"
+    src="/stationeries/pencil-red.png"
+    width="749px" />
+  <Image
+    alt=""
+    class="absolute hidden md:block bottom-[40px] right-[-240px] -rotate-[172deg] scale-x-100 -scale-y-100 drop-shadow-stationery"
+    height="32px"
+    src="/stationeries/pencil-orange.png"
+    width="749px" />
+  <Image
+    alt=""
+    class="absolute hidden md:block top-[32px] left-[-515px] rotate-[27deg] -scale-y-100 drop-shadow-stationery"
+    height="32px"
+    src="/stationeries/pencil-silver.png"
+    width="756px" />
+  <Image
+    alt=""
+    class="absolute hidden md:block top-[275px] right-[-435px] -scale-x-100 -scale-y-100 rotate-[40deg] drop-shadow-stationery"
+    height="32px"
+    src="/stationeries/pencil-green.png"
+    width="756px" />
+  <Image
+    alt=""
+    class="absolute hidden md:block top-[365px] right-[-485px] scale-x-100 -scale-y-100 rotate-[40deg] drop-shadow-stationery"
+    height="32px"
+    src="/stationeries/pencil-blue.png"
+    width="751px" />
+</main>
+</body>
+</html>
+
+<style define:vars={{ backgroundImageUrl }} is:global lang="scss">
+  :root {
+    --background-image-url: var(--backgroundImageUrl);
+  }
+</style>

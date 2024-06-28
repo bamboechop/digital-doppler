@@ -20,30 +20,48 @@ let banned = false;
 const token = Astro.cookies.get('twitch-token');
 
 try {
-  const response = await fetch('https://api.twitch.tv/helix/users', {
+  const userResponse = await fetch('https://api.twitch.tv/helix/users', {
     headers: {
       Authorization: `Bearer ${token.value}`,
       'Client-Id': import.meta.env.PUBLIC_TWITCH_CLIENT_ID,
     }
   });
-  if(response.status < 200 || response.status >= 300) {
-    throw (await response.json());
+  if(userResponse.status < 200 || userResponse.status >= 300) {
+    throw (await userResponse.json());
   }
 
-  const { data } = (await response.json());
-  userId = parseInt(data[0].id, 10);
-  displayName = data[0].display_name;
-  image = data[0].profile_image_url;
+  const { data: userData } = (await userResponse.json());
+  console.log({ userData })
+  userId = parseInt(userData[0].id, 10);
+  displayName = userData[0].display_name;
+  image = userData[0].profile_image_url;
+
+  const followStatusResponse = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}&broadcaster_id=${import.meta.env.PUBLIC_TWITCH_BROADCASTER_ID}`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+      'Client-Id': import.meta.env.PUBLIC_TWITCH_CLIENT_ID,
+    }
+  });
+  if(followStatusResponse.status < 200 || followStatusResponse.status >= 300) {
+    throw (await followStatusResponse.json());
+  }
+  const { data: followData } = (await followStatusResponse.json());
+
+  // do not redirect bamboechop even though he isn't following himself
+  if(userData[0].id !== import.meta.env.PUBLIC_TWITCH_BROADCASTER_ID && followData.length === 0) {
+    return Astro.redirect('/gain-access');
+  }
+
   const user = await dbClient.users.upsert({
     create: {
-      avatar_url: data[0].profile_image_url,
+      avatar_url: userData[0].profile_image_url,
       display_name: displayName,
       last_login_date: new Date(),
       user_id: userId,
-      user_name: data[0].login,
+      user_name: userData[0].login,
     },
     update: {
-      avatar_url: data[0].profile_image_url,
+      avatar_url: userData[0].profile_image_url,
       display_name: displayName,
       last_login_date: new Date(),
     },
