@@ -9,9 +9,11 @@ const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
 
 <GainAccessLayout>
   <h1 class="sr-only">Zutritt erlangen</h1>
-  <section class="flex flex-row gap-8">
+  <section class="flex flex-col 2xl:flex-row gap-8">
     <div class="flex flex-col gap-6 items-center">
-      <SingleNote text="Du bist hier gelandet da du nicht alle Kriterien erfüllst um mit bamboechop und seinen Zusehern zu teilen woran du heute arbeitest. Aber keine Sorge, die Kriterien sind schnell erfüllt. Lies einfach weiter." />
+      <SingleNote
+        class="max-xs:w-auto z-[2]"
+        text="Du bist hier gelandet da du nicht alle Kriterien erfüllst um mit bamboechop und seinen Zusehern zu teilen woran du heute arbeitest. Aber keine Sorge, die Kriterien sind schnell erfüllt." />
       <article class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl p-10 pt-5 shadow-lg font-sans relative z-[2] max-w-[417px]">
         <h2 class="text-center text-xl font-semibold">Schritt 1</h2>
         <h3 class="text-center text-2xl font-extrabold -mt-4">Folge <span class="highlight">bamboechop</span></h3>
