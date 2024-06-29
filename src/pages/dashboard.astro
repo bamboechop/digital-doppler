@@ -31,7 +31,6 @@ try {
   }
 
   const { data: userData } = (await userResponse.json());
-  console.log({ userData })
   userId = parseInt(userData[0].id, 10);
   displayName = userData[0].display_name;
   image = userData[0].profile_image_url;
@@ -45,11 +44,26 @@ try {
   if(followStatusResponse.status < 200 || followStatusResponse.status >= 300) {
     throw (await followStatusResponse.json());
   }
-  const { data: followData } = (await followStatusResponse.json());
-
   // do not redirect bamboechop even though he isn't following himself
-  if(userData[0].id !== import.meta.env.PUBLIC_TWITCH_BROADCASTER_ID && followData.length === 0) {
-    return Astro.redirect('/gain-access');
+  if(userData[0].id !== import.meta.env.PUBLIC_TWITCH_BROADCASTER_ID) {
+    if((await followStatusResponse.json()).length === 0) {
+      return Astro.redirect('/gain-access');
+    }
+  }
+
+  let coworkingChannelRedeemRedeemed = JSON.parse(import.meta.env.PUBLIC_TWITCH_MODERATORS ?? []).includes(userId);
+
+  if(!coworkingChannelRedeemRedeemed) {
+    const subscriptionStatusResponse = await fetch(`https://api.twitch.tv/helix/subscriptions/user?user_id=${userId}&broadcaster_id=${import.meta.env.PUBLIC_TWITCH_BROADCASTER_ID}`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+        'Client-Id': import.meta.env.PUBLIC_TWITCH_CLIENT_ID,
+      }
+    })
+    if(subscriptionStatusResponse.status < 200 || subscriptionStatusResponse.status >= 300) {
+      throw (await subscriptionStatusResponse.json());
+    }
+    coworkingChannelRedeemRedeemed = (await subscriptionStatusResponse.json()).length > 0;
   }
 
   const user = await dbClient.users.upsert({
@@ -57,11 +71,13 @@ try {
       avatar_url: userData[0].profile_image_url,
       display_name: displayName,
       last_login_date: new Date(),
+      coworking_channel_redeem_redeemed: coworkingChannelRedeemRedeemed,
       user_id: userId,
       user_name: userData[0].login,
     },
     update: {
       avatar_url: userData[0].profile_image_url,
+      coworking_channel_redeem_redeemed: coworkingChannelRedeemRedeemed ? coworkingChannelRedeemRedeemed : undefined,
       display_name: displayName,
       last_login_date: new Date(),
     },
@@ -71,6 +87,9 @@ try {
   });
   if(user && user.banned) {
     banned = true;
+  }
+  if(user && !user.coworking_channel_redeem_redeemed) {
+    return Astro.redirect('/gain-access');
   }
   const dbNotes = await dbClient.notes.findMany({
     orderBy: [
@@ -122,7 +141,7 @@ try {
       <div class="bg-red-500 flex flex-col gap-2 items-center justify-center self-center justify-self-center rounded px-8 py-4 max-w-3xl text-center">
         <UserRoundX size="64" />
         Aufgrund der von dir erstellten Notizen wurdest du von bamboechop gesperrt.<br />
-        Falls du mehr über die Sperre wissen möchtest oder du bamboechop davon überzeugen möchtest, dass er dich Entsperrt, kontaktiere ihn gerne auf Discord.
+        Falls du mehr über die Sperre wissen möchtest oder du bamboechop davon überzeugen möchtest, dass er dich entsperrt, kontaktiere ihn gerne auf Discord.
       </div>
     )}
   </section>
