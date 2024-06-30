@@ -12,7 +12,7 @@
     "db:migrate:deploy": "npx prisma migrate deploy",
     "db:pull": "npx prisma db pull",
     "dev": "npx astro dev",
-    "pm2": "git pull && npx rimraf node_modules && npm i && npm run pm2:build && (pm2 stop digital-doppler || true)  && rm -rf ~/html/digital-doppler.bamboechop.at/* && cp -r dist/client/* ~/html/digital-doppler.bamboechop.at/ && pm2 start pm2.config.cjs",
+    "pm2": "git pull && npx rimraf node_modules && npm i && npm run pm2:build && (pm2 stop digital-doppler || true)  && rm -rf ~/html/coworking.bamboechop.at/* && cp -r dist/client/* ~/html/coworking.bamboechop.at/ && pm2 start pm2.config.cjs",
     "pm2:build": "npx rimraf dist && npm run db:migrate:deploy && npm run db:generate:types && npx astro build",
     "preview": "npx astro preview",
     "start": "npx astro dev"
