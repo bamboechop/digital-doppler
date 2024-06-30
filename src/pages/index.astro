@@ -33,13 +33,18 @@ if(Astro.url.searchParams.size > 0) {
       width="220" />
   <section class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl px-8 xs:px-12 md:px-24 pt-5 md:pt-10 pb-7 md:pb-14 shadow-lg h-min font-sans relative z-[2]">
     <p class="text-center text-2xl font-extrabold mb-6">Coworking mit <span class="highlight">bamboechop</span></p>
-    <a
-      class="bg-[#9146ff] w-max text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
-      href={`https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_TWITCH_REDIRECT_URI}&response_type=${import.meta.env.PUBLIC_TWITCH_RESPONSE_TYPE}&scope=${encodeURIComponent(import.meta.env.PUBLIC_TWITCH_SCOPE)}&state=${import.meta.env.PUBLIC_TWITCH_STATE}`}>
-      Mit Twitch anmelden
-    </a>
-    {!isOnline && <IsNotLive />}
-    {isOnline && <IsLive />}
+    {!import.meta.env.COMING_SOON && (
+      <a
+        class="bg-[#9146ff] w-max text-white font-bold py-2 px-4 rounded transition-all hover:underline hover:underline-offset-[3px]"
+        href={`https://id.twitch.tv/oauth2/authorize?client_id=${import.meta.env.PUBLIC_TWITCH_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_TWITCH_REDIRECT_URI}&response_type=${import.meta.env.PUBLIC_TWITCH_RESPONSE_TYPE}&scope=${encodeURIComponent(import.meta.env.PUBLIC_TWITCH_SCOPE)}&state=${import.meta.env.PUBLIC_TWITCH_STATE}`}>
+        Mit Twitch anmelden
+      </a>
+    )}
+    {!import.meta.env.COMING_SOON && !isOnline && <IsNotLive />}
+    {!import.meta.env.COMING_SOON && isOnline && <IsLive />}
+    {import.meta.env.COMING_SOON && (
+      <p class="text-base">Coming soon...</p>
+    )}
     <Image
       alt=""
       class="absolute hidden md:block bottom-[20px] right-[-75px] -rotate-[36deg] drop-shadow-stationery"
@@ -47,9 +52,11 @@ if(Astro.url.searchParams.size > 0) {
       src="/stationeries/rubber-eraser.png"
       width="215px" />
   </section>
-  <SingleNote
+  {!import.meta.env.COMING_SOON && (
+    <SingleNote
     class="z-[1]"
     text="Alleine arbeiten kann sooooo langweilig sein. Melde dich mit deinem Twitch Account an, erstelle ein Todo und lass bamboechop und seine Zuseher wissen woran DU heute arbeitest." />
+  )}
   {errorMessage && (
     <div
       class="absolute bottom-2 right-2 cursor-pointer bg-red-700 flex flex-col gap-1 max-w-96 px-2 pt-2 pb-4 rounded-lg shadow-lg text-base toast"
