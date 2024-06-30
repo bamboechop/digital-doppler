@@ -8,14 +8,13 @@ datasource db {
 }
 
 model users {
-  user_id                           Int       @id
-  user_name                         String
-  display_name                      String
-  last_login_date                   DateTime? @default(now())
-  avatar_url                        String?
-  banned                            Boolean?  @default(false)
-  notes                             notes[]
-  coworking_channel_redeem_redeemed Boolean?  @default(false)
+  user_id         Int       @id @unique
+  user_name       String
+  display_name    String
+  last_login_date DateTime? @default(now())
+  avatar_url      String?
+  banned          Boolean?  @default(false)
+  notes           notes[]
 }
 
 model notes {
@@ -25,4 +24,8 @@ model notes {
   status  String?   @default("approval-pending")
   date    DateTime? @default(now())
   users   users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "notes_user_id_users_user_id_fk")
+}
+
+model user_redeemed_coworking_redeem {
+  user_id Int @id @unique
 }

@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import GainAccessLayout from '../layouts/GainAccessLayout.astro';
 import SingleNote from '../components/SingleNote.astro';
-import { ExternalLink } from 'lucide-astro';
+import { ExternalLink, LogOut } from 'lucide-astro';
 
 const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
 ---
@@ -39,7 +39,7 @@ const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
         width="337" />
       <p class="text-base">Nachdem du dem Kanal gefolgt bist bleib einfach für ein paar Minuten dabei, erfreu dich am gezeigten und genieß die Musik. Sobald du 500 Kanalpunkte verdient hast kannst du die Coworking Belohnung einlösen. Klicke hierzu unter dem Chat auf den "Power-ups & Belohnungen" Button, finde die Coworking Belohnung und löse diese ein.</p>
     </article>
-    <div class="flex flex-col gap-16 items-center">
+    <div class="flex flex-col gap-4 items-center">
       <article class="bg-[#102269] bg-background-black-linen flex flex-col gap-4 items-center outline-indigo-400 outline-dashed outline-2 outline-offset-[-6px] rounded-2xl p-10 pt-5 shadow-lg font-sans relative z-[2] max-w-[417px]">
         <h2 class="text-center text-xl font-semibold">Schritt 3</h2>
         <h3 class="text-center text-2xl font-extrabold -mt-4">Geh zum Coworking Dashboard</h3>
@@ -48,6 +48,10 @@ const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
           href={link}>Zum Coworking Dashboard</a>
         <p class="text-base">Viel Spaß und lass uns wissen woran du heute arbeitest!</p>
       </article>
+      <button class="flex gap-1 items-center logout-button text-sm underline">
+        <LogOut class="shrink-0" size="16" />
+        Abmelden
+      </button>
       <Image
         alt="Coworking with bamboechop logo"
         class="shape-round -rotate-12 drop-shadow-logo z-[2]"
@@ -58,6 +62,13 @@ const link = Astro.cookies.has('twitch-token') ? '/dashboard' : '/';
     </div>
   </section>
 </GainAccessLayout>
+
+<script>
+  document.querySelector('.logout-button').addEventListener('click', () => {
+    document.cookie = 'twitch-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+    window.location.href = '/';
+  });
+</script>
 
 <style lang="scss">
   .highlight {

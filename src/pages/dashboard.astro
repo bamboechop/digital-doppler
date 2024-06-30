@@ -71,18 +71,29 @@ try {
     coworkingChannelRedeemRedeemed = true;
   }
 
+  if(coworkingChannelRedeemRedeemed) {
+    // store that the user has "redeemed" the coworking redeem due to being a sub or moderator
+    await dbClient.user_redeemed_coworking_redeem.upsert({
+      create: {
+        user_id: userId
+      },
+      update: {},
+      where: {
+        user_id: userId
+      },
+    });
+  }
+
   const user = await dbClient.users.upsert({
     create: {
       avatar_url: userData[0].profile_image_url,
       display_name: displayName,
       last_login_date: new Date(),
-      coworking_channel_redeem_redeemed: coworkingChannelRedeemRedeemed,
       user_id: userId,
       user_name: userData[0].login,
     },
     update: {
       avatar_url: userData[0].profile_image_url,
-      coworking_channel_redeem_redeemed: coworkingChannelRedeemRedeemed ? coworkingChannelRedeemRedeemed : undefined,
       display_name: displayName,
       last_login_date: new Date(),
     },
@@ -93,7 +104,12 @@ try {
   if(user && user.banned) {
     banned = true;
   }
-  if(user && !user.coworking_channel_redeem_redeemed) {
+  const userRedeemedCoworkingRedeem = await dbClient.user_redeemed_coworking_redeem.findUnique({
+    where: {
+      user_id: userId
+    }
+  });
+  if(!userRedeemedCoworkingRedeem) {
     return Astro.redirect('/gain-access');
   }
   const dbNotes = await dbClient.notes.findMany({

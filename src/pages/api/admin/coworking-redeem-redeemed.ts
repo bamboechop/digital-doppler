@@ -13,20 +13,13 @@ export async function PATCH({ request }: AstroGlobal) {
   }
 
   try {
-    const user = await dbClient.users.findUnique({
-      where: {
+    await dbClient.user_redeemed_coworking_redeem.upsert({
+      create: {
         user_id: parseInt(userId, 10),
       },
-    });
-    if(!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-    }
-    await dbClient.users.update({
-      data: {
-        coworking_channel_redeem_redeemed: true,
-      },
+      update: {},
       where: {
-        user_id: user.user_id,
+        user_id: parseInt(userId, 10),
       },
     });
     return new Response(undefined, { status: 200 });
