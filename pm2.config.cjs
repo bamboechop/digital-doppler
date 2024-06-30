@@ -3,7 +3,7 @@ module.exports = {
     {
       cron_restart: '10 4 * * *',
       cwd: '/home/bambat/digital-doppler',
-      name: 'digital-doppler',
+      name: 'coworking (digital-doppler)',
       script: './dist/server/entry.mjs',
     },
   ],
